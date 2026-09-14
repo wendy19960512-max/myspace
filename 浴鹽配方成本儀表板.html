@@ -217,6 +217,8 @@
     lavender:  { name: "薰衣草",   price: 249, vol: 50 },
     rose:      { name: "玫瑰",     price: 180, vol: 10 },
     palosanto: { name: "秘魯聖木", price: 377, vol: 10 },
+    sage:      { name: "鼠尾草",   price: 169, vol: 10 },
+    cedarwood: { name: "雪松(杉木枝葉)", price: 500, vol: 5 },
   };
 
   const PRESETS = [
@@ -230,6 +232,17 @@
     { id: "hinoki-rose",       label: "檜木 + 玫瑰",   tagline: "溫柔療癒", a: "hinoki",   b: "rose",      ratio: 85 },
     { id: "lavender-rose",     label: "薰衣草 + 玫瑰", tagline: "浪漫儀式", a: "lavender", b: "rose",      ratio: 70 },
     { id: "rose-palosanto",    label: "玫瑰 + 聖木",   tagline: "奢華沉穩", a: "rose",     b: "palosanto", ratio: 20 },
+    { id: "sage-orange",       label: "鼠尾草 + 甜橙", tagline: "平衡舒心", a: "sage",     b: "orange",    ratio: 50 },
+    { id: "cedarwood-lavender",label: "雪松 + 薰衣草", tagline: "深層放鬆", a: "cedarwood",b: "lavender",  ratio: 30 },
+    { id: "cedarwood-orange",  label: "雪松 + 甜橙",   tagline: "溫暖明亮", a: "cedarwood",b: "orange",    ratio: 30 },
+    { id: "sage-palosanto",    label: "鼠尾草 + 聖木", tagline: "草本冥想", a: "sage",     b: "palosanto", ratio: 60 },
+    { id: "sage-hinoki",       label: "鼠尾草 + 檜木", tagline: "草本沉穩", a: "sage",     b: "hinoki",    ratio: 50 },
+    { id: "cedarwood-rose",    label: "雪松 + 玫瑰",   tagline: "木質玫瑰", a: "cedarwood",b: "rose",      ratio: 30 },
+    { id: "sage-cedarwood",    label: "鼠尾草 + 雪松", tagline: "大地草本", a: "sage",     b: "cedarwood", ratio: 70 },
+    { id: "sage-lavender",     label: "鼠尾草 + 薰衣草", tagline: "舒緩放鬆", a: "sage",   b: "lavender",  ratio: 50 },
+    { id: "sage-rose",         label: "鼠尾草 + 玫瑰", tagline: "花草平衡", a: "sage",     b: "rose",      ratio: 70 },
+    { id: "cedarwood-hinoki",  label: "雪松 + 檜木",   tagline: "雙重木質", a: "cedarwood",b: "hinoki",    ratio: 30 },
+    { id: "cedarwood-palosanto",label:"雪松 + 聖木",   tagline: "雙重木質(進階)", a: "cedarwood", b: "palosanto", ratio: 30 },
   ];
 
   const DROPS_PER_ML = 20;
