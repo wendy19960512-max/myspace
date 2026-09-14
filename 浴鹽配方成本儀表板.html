@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>浴鹽配方成本儀表板</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #1c2418;
+    --panel: #232d1d;
+    --panel-2: #2a3524;
+    --border: #3a4530;
+    --text: #efe8d8;
+    --text-muted: #a6ae96;
+    --gold: #c9a24e;
+    --c-epsom: #c9a24e;
+    --c-sea: #7d8f6a;
+    --c-carrier: #d9c9a3;
+    --c-oilA: #b97455;
+    --c-oilB: #6f8faa;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Work Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 32px 20px 48px;
+  }
+  h1, h2 { font-family: 'Fraunces', serif; font-weight: 500; margin: 0; }
+  .header { max-width: 1040px; margin: 0 auto 28px; }
+  .header h1 { font-size: 28px; }
+  .header p { color: var(--text-muted); font-size: 14px; margin-top: 6px; line-height: 1.6; }
+  .layout { max-width: 1040px; margin: 0 auto; display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
+  @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 4px; padding: 20px; }
+  .panel + .panel { margin-top: 20px; }
+  .panel h2 { font-size: 15px; color: var(--gold); margin-bottom: 4px; }
+  .panel-sub { color: var(--text-muted); font-size: 12px; margin-bottom: 16px; }
+  .field { display: block; margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+  .field-label { display: block; font-size: 12.5px; color: var(--text-muted); margin-bottom: 5px; }
+  .field-input-row { display: flex; align-items: center; background: var(--panel-2); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+  .field-input-row input[type="number"] {
+    flex: 1; background: transparent; border: none; color: var(--text);
+    font-family: 'Work Sans', sans-serif; font-size: 14px; padding: 8px 10px;
+    font-variant-numeric: tabular-nums; width: 100%;
+  }
+  .field-input-row input[type="number"]:focus { outline: none; }
+  .field-unit { padding: 0 10px; font-size: 12px; color: var(--text-muted); border-left: 1px solid var(--border); white-space: nowrap; }
+  .price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .preset-btn {
+    background: var(--panel-2); border: 1px solid var(--border); color: var(--text-muted);
+    font-family: 'Work Sans', sans-serif; font-size: 12.5px; padding: 7px 12px;
+    border-radius: 999px; cursor: pointer; transition: border-color .15s, color .15s;
+  }
+  .preset-btn:hover { border-color: #8fa377; }
+  .preset-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(201,162,78,0.08); }
+  .oil-picker-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  select {
+    width: 100%; background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+    font-family: 'Work Sans', sans-serif; font-size: 14px; padding: 8px 10px; border-radius: 3px;
+  }
+  .ratio-row { margin-bottom: 20px; }
+  .ratio-labels { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--text-muted); margin-bottom: 8px; }
+  .ratio-labels b { color: var(--text); font-weight: 600; }
+  input[type="range"] { width: 100%; accent-color: var(--gold); }
+  .settings-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  @media (max-width: 640px) { .settings-grid { grid-template-columns: 1fr 1fr; } }
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+  .result-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  table.breakdown { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.breakdown td { padding: 9px 0; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  table.breakdown tr:last-child td { border-bottom: none; }
+  .swatch { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 8px; }
+  .cell-amount { color: var(--text-muted); font-size: 12.5px; }
+  .cell-cost { text-align: right; font-variant-numeric: tabular-nums; }
+  .total-row td { padding-top: 14px; font-weight: 600; color: var(--gold); font-size: 15px; }
+  .cost-bar { display: flex; height: 10px; border-radius: 999px; overflow: hidden; margin: 16px 0 4px; background: var(--panel-2); }
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 20px; }
+  @media (max-width: 640px) { .stats-row { grid-template-columns: 1fr; } }
+  .stat-card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 16px; }
+  .stat-value { font-family: 'Fraunces', serif; font-size: 26px; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .note { font-size: 11.5px; color: var(--text-muted); margin-top: 18px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>浴鹽配方成本儀表板</h1>
+  <p>調整材料單價、鹽比例與精油配方,即時算出每批用量與每次泡澡的成本。</p>
+</div>
+
+<div class="layout">
+  <!-- 左側：材料單價 -->
+  <div>
+    <div class="panel">
+      <h2>材料單價</h2>
+      <div class="panel-sub">依你的採購價填寫,單價會自動換算</div>
+      <div class="price-grid">
+        <label class="field">
+          <span class="field-label">瀉鹽(每 1000g)</span>
+          <div class="field-input-row"><input type="number" id="p_epsom" value="90"><span class="field-unit">元</span></div>
+        </label>
+        <label class="field">
+          <span class="field-label">粗海鹽(每 1000g)</span>
+          <div class="field-input-row"><input type="number" id="p_seaSalt" value="150"><span class="field-unit">元</span></div>
+        </label>
+        <label class="field">
+          <span class="field-label">甜杏仁油(每 100ml)</span>
+          <div class="field-input-row"><input type="number" id="p_almond" value="178"><span class="field-unit">元</span></div>
+        </label>
+      </div>
+      <div class="divider"></div>
+      <div class="panel-sub" style="margin-bottom:10px;">精油單價</div>
+      <div class="price-grid" id="oilPriceGrid"></div>
+    </div>
+  </div>
+
+  <!-- 右側：配方設定 + 結果 -->
+  <div>
+    <div class="panel">
+      <h2>配方設定</h2>
+      <div class="panel-sub">選一個常用組合快速套用,或自行搭配下方兩款精油</div>
+      <div class="presets" id="presetRow"></div>
+
+      <div class="oil-picker-row">
+        <label class="field" style="margin-bottom:0;">
+          <span class="field-label">精油 A</span>
+          <select id="oilA"></select>
+        </label>
+        <label class="field" style="margin-bottom:0;">
+          <span class="field-label">精油 B</span>
+          <select id="oilB"></select>
+        </label>
+      </div>
+
+      <div class="ratio-row">
+        <div class="ratio-labels">
+          <span id="ratioLabelA"></span>
+          <span id="ratioLabelB"></span>
+        </div>
+        <input type="range" id="ratioA" min="0" max="100" value="60">
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="settings-grid">
+        <label class="field">
+          <span class="field-label">每批鹽總重</span>
+          <div class="field-input-row"><input type="number" id="batchWeight" value="150" step="10"><span class="field-unit">g</span></div>
+        </label>
+        <label class="field">
+          <span class="field-label">瀉鹽比例</span>
+          <div class="field-input-row"><input type="number" id="saltRatioEpsom" value="67" step="1"><span class="field-unit">%</span></div>
+        </label>
+        <label class="field">
+          <span class="field-label">精油濃度</span>
+          <div class="field-input-row"><input type="number" id="concentration" value="0.7" step="0.1"><span class="field-unit">%</span></div>
+        </label>
+        <label class="field">
+          <span class="field-label">基底油比例</span>
+          <div class="field-input-row"><input type="number" id="carrierPercent" value="2" step="0.5"><span class="field-unit">%</span></div>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="result-header">
+        <h2 style="margin-bottom:0;">這一批的用量與成本</h2>
+        <span class="panel-sub" style="margin-bottom:0;" id="resultSub"></span>
+      </div>
+
+      <table class="breakdown">
+        <tbody id="breakdownBody"></tbody>
+      </table>
+
+      <div class="cost-bar" id="costBar"></div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value" id="statPerGram">0</div>
+          <div class="stat-label">每克成本(元/g)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statUses">0</div>
+          <div class="stat-label">每批可泡幾次(以下方每次用量計)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statPerUse">0</div>
+          <div class="stat-label">每次泡澡成本(元/次)</div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px; max-width:260px;">
+        <label class="field">
+          <span class="field-label">每次泡澡用量</span>
+          <div class="field-input-row"><input type="number" id="perUseGrams" value="50" step="5"><span class="field-unit">g / 次</span></div>
+        </label>
+      </div>
+
+      <p class="note">
+        假設:精油密度以 1ml ≈ 1g 概算,1ml ≈ 20 滴。「每批鹽總重」不含精油與基底油的重量,與先前配方計算方式一致。所有材料單價、比例、批重皆可自行調整,結果即時更新。
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const OILS = {
+    hinoki:    { name: "低溫紅檜", price: 107, vol: 10 },
+    orange:    { name: "甜橙",     price: 119, vol: 30 },
+    lavender:  { name: "薰衣草",   price: 249, vol: 50 },
+    rose:      { name: "玫瑰",     price: 180, vol: 10 },
+    palosanto: { name: "秘魯聖木", price: 377, vol: 10 },
+  };
+
+  const PRESETS = [
+    { id: "hinoki-orange",     label: "檜木 + 甜橙",   tagline: "清爽提振", a: "hinoki",   b: "orange",    ratio: 60 },
+    { id: "hinoki-lavender",   label: "檜木 + 薰衣草", tagline: "沉穩安眠", a: "hinoki",   b: "lavender",  ratio: 55 },
+    { id: "lavender-orange",   label: "薰衣草 + 甜橙", tagline: "舒眠放鬆", a: "lavender", b: "orange",    ratio: 50 },
+    { id: "hinoki-palosanto",  label: "檜木 + 聖木",   tagline: "沉穩冥想", a: "hinoki",   b: "palosanto", ratio: 50 },
+    { id: "lavender-palosanto",label: "薰衣草 + 聖木", tagline: "靜心紓壓", a: "lavender", b: "palosanto", ratio: 60 },
+    { id: "orange-palosanto",  label: "甜橙 + 聖木",   tagline: "活力沉穩", a: "orange",   b: "palosanto", ratio: 60 },
+    { id: "orange-rose",       label: "甜橙 + 玫瑰",   tagline: "明亮甜美", a: "orange",   b: "rose",      ratio: 70 },
+    { id: "hinoki-rose",       label: "檜木 + 玫瑰",   tagline: "溫柔療癒", a: "hinoki",   b: "rose",      ratio: 85 },
+    { id: "lavender-rose",     label: "薰衣草 + 玫瑰", tagline: "浪漫儀式", a: "lavender", b: "rose",      ratio: 70 },
+    { id: "rose-palosanto",    label: "玫瑰 + 聖木",   tagline: "奢華沉穩", a: "rose",     b: "palosanto", ratio: 20 },
+  ];
+
+  const DROPS_PER_ML = 20;
+  const COLORS = { epsom: "#c9a24e", sea: "#7d8f6a", carrier: "#d9c9a3", oilA: "#b97455", oilB: "#6f8faa" };
+
+  let state = {
+    presetId: "hinoki-orange",
+    oilAKey: "hinoki",
+    oilBKey: "orange",
+    ratioA: 60,
+  };
+
+  function fmt(n, d = 2) {
+    if (!isFinite(n)) return "0";
+    return n.toLocaleString("zh-TW", { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+  function val(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+  function buildOilPriceGrid() {
+    const grid = document.getElementById("oilPriceGrid");
+    grid.innerHTML = "";
+    Object.entries(OILS).forEach(([key, oil]) => {
+      const label = document.createElement("label");
+      label.className = "field";
+      label.innerHTML = `
+        <span class="field-label">${oil.name}(每 ${oil.vol}ml)</span>
+        <div class="field-input-row">
+          <input type="number" id="p_${key}" value="${oil.price}">
+          <span class="field-unit">元</span>
+        </div>`;
+      grid.appendChild(label);
+      label.querySelector("input").addEventListener("input", render);
+    });
+  }
+
+  function buildPresets() {
+    const row = document.getElementById("presetRow");
+    row.innerHTML = "";
+    PRESETS.forEach((p) => {
+      const btn = document.createElement("button");
+      btn.className = "preset-btn" + (state.presetId === p.id ? " active" : "");
+      btn.textContent = `${p.label} · ${p.tagline}`;
+      btn.addEventListener("click", () => {
+        state.presetId = p.id;
+        state.oilAKey = p.a;
+        state.oilBKey = p.b;
+        state.ratioA = p.ratio;
+        document.getElementById("oilA").value = p.a;
+        document.getElementById("oilB").value = p.b;
+        document.getElementById("ratioA").value = p.ratio;
+        render();
+      });
+      row.appendChild(btn);
+    });
+  }
+
+  function buildOilSelects() {
+    ["oilA", "oilB"].forEach((id) => {
+      const sel = document.getElementById(id);
+      sel.innerHTML = "";
+      Object.entries(OILS).forEach(([key, oil]) => {
+        const opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = oil.name;
+        sel.appendChild(opt);
+      });
+    });
+    document.getElementById("oilA").value = state.oilAKey;
+    document.getElementById("oilB").value = state.oilBKey;
+
+    document.getElementById("oilA").addEventListener("change", (e) => {
+      state.oilAKey = e.target.value;
+      state.presetId = null;
+      render();
+    });
+    document.getElementById("oilB").addEventListener("change", (e) => {
+      state.oilBKey = e.target.value;
+      state.presetId = null;
+      render();
+    });
+  }
+
+  function render() {
+    const prices = {
+      epsom: val("p_epsom"),
+      seaSalt: val("p_seaSalt"),
+      almond: val("p_almond"),
+    };
+    Object.keys(OILS).forEach((k) => (prices[k] = val(`p_${k}`)));
+
+    state.ratioA = parseInt(document.getElementById("ratioA").value);
+    const batchWeight = val("batchWeight");
+    const saltRatioEpsom = val("saltRatioEpsom");
+    const concentration = val("concentration");
+    const carrierPercent = val("carrierPercent");
+    const perUseGrams = val("perUseGrams") || 1;
+
+    document.getElementById("ratioLabelA").innerHTML = `<b>${OILS[state.oilAKey].name}</b> ${state.ratioA}%`;
+    document.getElementById("ratioLabelB").innerHTML = `<b>${OILS[state.oilBKey].name}</b> ${100 - state.ratioA}%`;
+
+    const epsomPerG = prices.epsom / 1000;
+    const seaSaltPerG = prices.seaSalt / 1000;
+    const almondPerMl = prices.almond / 100;
+    const oilAPerMl = prices[state.oilAKey] / OILS[state.oilAKey].vol;
+    const oilBPerMl = prices[state.oilBKey] / OILS[state.oilBKey].vol;
+
+    const saltEpsomG = (batchWeight * saltRatioEpsom) / 100;
+    const saltSeaG = batchWeight - saltEpsomG;
+
+    const totalOilMl = (batchWeight * concentration) / 100;
+    const oilAMl = (totalOilMl * state.ratioA) / 100;
+    const oilBMl = totalOilMl - oilAMl;
+
+    const carrierMl = (batchWeight * carrierPercent) / 100;
+
+    const costEpsom = saltEpsomG * epsomPerG;
+    const costSea = saltSeaG * seaSaltPerG;
+    const costCarrier = carrierMl * almondPerMl;
+    const costOilA = oilAMl * oilAPerMl;
+    const costOilB = oilBMl * oilBPerMl;
+
+    const totalCost = costEpsom + costSea + costCarrier + costOilA + costOilB;
+    const costPerGram = totalCost / batchWeight;
+    const usesPerBatch = batchWeight / perUseGrams;
+    const costPerUse = costPerGram * perUseGrams;
+
+    document.getElementById("resultSub").textContent =
+      `${batchWeight}g 鹽 · ${OILS[state.oilAKey].name} + ${OILS[state.oilBKey].name}`;
+
+    const rows = [
+      { label: "瀉鹽", amount: `${fmt(saltEpsomG, 1)} g`, cost: costEpsom, color: COLORS.epsom },
+      { label: "粗海鹽", amount: `${fmt(saltSeaG, 1)} g`, cost: costSea, color: COLORS.sea },
+      { label: "甜杏仁油(基底)", amount: `${fmt(carrierMl, 2)} ml`, cost: costCarrier, color: COLORS.carrier },
+      { label: OILS[state.oilAKey].name, amount: `${fmt(oilAMl, 2)} ml ≈ ${Math.round(oilAMl * DROPS_PER_ML)} 滴`, cost: costOilA, color: COLORS.oilA },
+      { label: OILS[state.oilBKey].name, amount: `${fmt(oilBMl, 2)} ml ≈ ${Math.round(oilBMl * DROPS_PER_ML)} 滴`, cost: costOilB, color: COLORS.oilB },
+    ];
+
+    const body = document.getElementById("breakdownBody");
+    body.innerHTML = "";
+    rows.forEach((r) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><span class="swatch" style="background:${r.color}"></span>${r.label}</td>
+        <td class="cell-amount">${r.amount}</td>
+        <td class="cell-cost">${fmt(r.cost, 2)} 元</td>`;
+      body.appendChild(tr);
+    });
+    const totalTr = document.createElement("tr");
+    totalTr.className = "total-row";
+    totalTr.innerHTML = `<td colspan="2">總成本</td><td class="cell-cost">${fmt(totalCost, 2)} 元</td>`;
+    body.appendChild(totalTr);
+
+    const bar = document.getElementById("costBar");
+    bar.innerHTML = "";
+    rows.forEach((r) => {
+      const seg = document.createElement("div");
+      const pct = totalCost > 0 ? (r.cost / totalCost) * 100 : 0;
+      seg.style.width = pct + "%";
+      seg.style.background = r.color;
+      bar.appendChild(seg);
+    });
+
+    document.getElementById("statPerGram").textContent = fmt(costPerGram, 3);
+    document.getElementById("statUses").textContent = fmt(usesPerBatch, 1);
+    document.getElementById("statPerUse").textContent = fmt(costPerUse, 2);
+
+    buildPresets();
+  }
+
+  // init
+  buildOilPriceGrid();
+  buildOilSelects();
+  buildPresets();
+
+  ["p_epsom", "p_seaSalt", "p_almond", "batchWeight", "saltRatioEpsom", "concentration", "carrierPercent", "perUseGrams", "ratioA"]
+    .forEach((id) => document.getElementById(id).addEventListener("input", render));
+
+  render();
+</script>
+
+</body>
+</html>
