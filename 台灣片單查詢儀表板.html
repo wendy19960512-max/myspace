@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>台灣片單查詢儀表板</title>
+<style>
+:root{
+  --bg:#0e1013; --panel:#16191d; --panel2:#1d2126; --line:#2a2f36;
+  --ink:#eef0f2; --sub:#9aa3ad; --accent:#e6b325; --accent2:#3fa9f5;
+  --movie:#e6b325; --tv:#3fa9f5; --ok:#4caf6b;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#f6f5f2; --panel:#ffffff; --panel2:#f0eee9; --line:#e3e0d8;
+    --ink:#1c1c1c; --sub:#6b6b6b; --accent:#b6821a; --accent2:#1c72b8;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1013; --panel:#16191d; --panel2:#1d2126; --line:#2a2f36;
+  --ink:#eef0f2; --sub:#9aa3ad; --accent:#e6b325; --accent2:#3fa9f5;
+}
+html{scroll-padding-top: env(safe-area-inset-top, 0px);}
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif; min-height:100%;}
+header{padding:22px 20px 16px; border-bottom:1px solid var(--line); position:sticky; top:0;
+  background:var(--bg); z-index:5; padding-top: calc(22px + env(safe-area-inset-top, 0px));}
+h1{margin:0 0 4px; font-size:1.3rem; font-weight:700;}
+.sub{color:var(--sub); font-size:.82rem; line-height:1.6; max-width:780px;}
+.controls{display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; align-items:center;}
+input[type=text], select{background:var(--panel); border:1px solid var(--line); color:var(--ink);
+  padding:9px 12px; border-radius:8px; font-size:.87rem; font-family:inherit;}
+input[type=text]{flex:1 1 200px; min-width:150px;}
+.chip{border:1px solid var(--line); background:var(--panel); color:var(--sub);
+  padding:7px 13px; border-radius:999px; font-size:.8rem; cursor:pointer; user-select:none;}
+.chip.active{background:var(--accent); color:#1a1400; border-color:var(--accent); font-weight:600;}
+.iebtn{border:1px solid var(--accent2); background:transparent; color:var(--accent2);
+  padding:7px 13px; border-radius:999px; font-size:.8rem; cursor:pointer; font-weight:600;}
+.iebtn:hover{background:rgba(63,169,245,.12);}
+.stats{display:flex; gap:16px; margin-top:12px; font-size:.78rem; color:var(--sub); flex-wrap:wrap;}
+.stats b{color:var(--ink);}
+main{padding:16px 20px 60px; max-width:1000px; margin:0 auto;}
+.add-box{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:18px;}
+.add-box summary{cursor:pointer; font-size:.88rem; font-weight:600; color:var(--accent2);}
+.add-row{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;}
+.add-row input, .add-row select{flex:1 1 140px;}
+.add-row button{background:var(--accent2); color:#06141f; border:none; padding:9px 16px;
+  border-radius:8px; font-weight:700; cursor:pointer; font-size:.84rem;}
+.list{display:flex; flex-direction:column; gap:10px;}
+.card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px 14px;}
+.card.iswatched{border-color:var(--ok);}
+.rowtop{display:flex; gap:12px; align-items:center; flex-wrap:wrap;}
+.badge{font-size:.66rem; font-weight:700; padding:3px 8px; border-radius:6px; white-space:nowrap;}
+.badge.movie{background:rgba(230,179,37,.15); color:var(--movie);}
+.badge.tv{background:rgba(63,169,245,.15); color:var(--tv);}
+.rank{color:var(--sub); font-size:.72rem; width:32px; text-align:right; flex:0 0 auto;}
+.titles{flex:1 1 220px; min-width:170px;}
+.titles .zh{font-weight:700; font-size:.95rem;}
+.titles .en{color:var(--sub); font-size:.76rem;}
+.people{color:var(--sub); font-size:.73rem; flex:1 1 150px; min-width:130px;}
+.actions{display:flex; gap:6px; align-items:center; flex-wrap:wrap; flex:0 0 auto;}
+.searchbtn{display:inline-flex; align-items:center; gap:5px; text-decoration:none;
+  background:var(--panel2); border:1px solid var(--line); color:var(--ink);
+  padding:7px 11px; border-radius:8px; font-size:.76rem; white-space:nowrap;}
+.searchbtn:hover{border-color:var(--accent2);}
+select.platform{min-width:110px; font-size:.76rem; padding:7px 8px;}
+select.platform.set{border-color:var(--ok); color:var(--ok); font-weight:600;}
+label.watched{display:flex; align-items:center; gap:5px; font-size:.75rem; color:var(--sub); cursor:pointer;}
+label.watched.on{color:var(--ok); font-weight:600;}
+.recbtn{background:none; border:1px solid var(--line); color:var(--accent); border-radius:8px;
+  padding:7px 11px; font-size:.76rem; cursor:pointer;}
+.recbox{display:none; margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);}
+.recbox.open{display:block;}
+.recbox ul{margin:4px 0 0; padding-left:18px; font-size:.8rem; color:var(--sub); line-height:1.8;}
+.empty{color:var(--sub); text-align:center; padding:40px 0; font-size:.9rem;}
+footer{color:var(--sub); font-size:.7rem; text-align:center; padding:0 20px 30px; line-height:1.7;
+  padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px));}
+#fileInput{display:none;}
+</style>
+</head>
+<body>
+<header>
+  <h1>台灣片單查詢儀表板</h1>
+  <div class="sub">
+    台灣沒有公開即時的串流授權 API，無法自動顯示上架平台，改用一鍵搜尋替代：按「JustWatch TW／Google」直接跳去看目前上架狀態，查完自己選平台即可。
+    「已看」與「平台」紀錄會存在你目前瀏覽器（localStorage），按「匯出」可存成檔案備份，換裝置或清除瀏覽資料後用「匯入」讀回來就好。
+  </div>
+  <div class="controls">
+    <input type="text" id="q" placeholder="搜尋片名／導演…">
+    <span class="chip active" data-type="all">全部</span>
+    <span class="chip" data-type="電影">電影</span>
+    <span class="chip" data-type="影集">影集</span>
+    <span class="chip" data-watched="1">已看過</span>
+    <span class="chip" data-unwatched="1">未看過</span>
+    <span class="chip" data-haveplatform="1">已記錄平台</span>
+    <button class="iebtn" id="exportBtn">⬇ 匯出備份</button>
+    <button class="iebtn" id="importBtn">⬆ 匯入備份</button>
+    <input type="file" id="fileInput" accept="application/json">
+  </div>
+  <div class="stats" id="stats"></div>
+</header>
+<main>
+  <details class="add-box">
+    <summary>➕ 新增自己的片單</summary>
+    <div class="add-row">
+      <input type="text" id="newZh" placeholder="中文片名">
+      <input type="text" id="newEn" placeholder="英文片名（可留空）">
+      <select id="newType"><option value="電影">電影</option><option value="影集">影集</option></select>
+      <button id="addBtn">加入清單</button>
+    </div>
+  </details>
+
+  <div class="list" id="list"></div>
+  <div class="empty" id="emptyMsg" style="display:none;">沒有符合條件的項目。</div>
+</main>
+<footer>
+  平台與已看紀錄僅存在你目前瀏覽器；匯出的備份檔可自行保存或分享。<br>
+  「延伸推薦」為依導演其他作品、坎城／奧斯卡得獎、同期同類作品整理的參考清單，非官方資料，僅供發現新片參考。
+</footer>
+
+<script>
+const BASE_ITEMS = [{"type": "電影", "rank": 1, "en": "Parasite", "zh": "寄生上流", "people": "奉俊昊 Bong Joon Ho", "year": "眾多影人票選第一名", "watched": true, "recs": ["《殺人回憶》奉俊昊，2003", "《末日列車》奉俊昊，2013", "《小偷家族》是枝裕和，2018（坎城金棕櫚）", "《遊牧人生》Chloé Zhao，2020（奧斯卡最佳影片）", "《燃燒烈愛》李滄東，2018"]}, {"type": "電影", "rank": 2, "en": "Mulholland Drive", "zh": "穆荷蘭大道", "people": "大衛林區 David Lynch", "year": "", "watched": true, "recs": ["《藍絲絨》David Lynch，1986", "《驚狂》David Lynch，1997", "《內陸帝國》David Lynch，2006", "《迷魂記》Alfred Hitchcock，1958", "《假面》Ingmar Bergman，1966"]}, {"type": "電影", "rank": 3, "en": "There Will Be Blood", "zh": "黑金企業", "people": "保羅湯瑪斯安德森 Paul Thomas Anderson", "year": "Jason Blum（監製）", "watched": false, "recs": ["《大師》Paul Thomas Anderson，2012", "《霓裳魅影》Paul Thomas Anderson，2017", "《一舉成名》Paul Thomas Anderson，1997", "《大國民》Orson Welles，1941", "《險路勿近》柯恩兄弟，2007"]}, {"type": "電影", "rank": 4, "en": "In the Mood for Love", "zh": "花樣年華", "people": "王家衛 Wong Kar-wai", "year": "", "watched": true, "recs": ["《2046》王家衛，2004", "《重慶森林》王家衛，1994", "《春光乍洩》王家衛，1997", "《因為愛你》Todd Haynes，2015", "《燃燒女子的畫像》Céline Sciamma，2019"]}, {"type": "電影", "rank": 5, "en": "Moonlight", "zh": "月光下的藍色男孩", "people": "貝瑞傑金斯 Barry Jenkins", "year": "", "watched": true, "recs": ["《愛在暹羅街角》Barry Jenkins，2018", "《以你的名字呼喚我》Luca Guadagnino，2017", "《自由之心》Steve McQueen，2013（奧斯卡最佳影片）", "《斷背山》李安，2005", "《樂來越愛你》Damien Chazelle，2016"]}, {"type": "電影", "rank": 6, "en": "No Country for Old Men", "zh": "險路勿近", "people": "柯恩兄弟 Joel & Ethan Coen", "year": "", "watched": false, "recs": ["《冰血暴》柯恩兄弟，1996", "《正經好人》柯恩兄弟，2009", "《黑金企業》Paul Thomas Anderson，2007", "《血迷宮》柯恩兄弟，1984", "《怒火邊界》Denis Villeneuve，2015"]}, {"type": "電影", "rank": 7, "en": "Eternal Sunshine of the Spotless Mind", "zh": "王牌冤家", "people": "米歇爾岡瑞 Michel Gondry", "year": "", "watched": true, "recs": ["《變腦》Spike Jonze，1999", "《蘭花賊》Spike Jonze，2002", "《雲端情人》Spike Jonze，2013", "《紐約提喻法》Charlie Kaufman，2008", "《愛情不用翻譯》Sofia Coppola，2003"]}, {"type": "電影", "rank": 8, "en": "Get Out", "zh": "逃出絕命鎮", "people": "喬登皮爾 Jordan Peele", "year": "", "watched": true, "recs": ["《我們》Jordan Peele，2019", "《不！》Jordan Peele，2022", "《鬼敲門》Jennifer Kent，2014", "《失嬰記》Roman Polanski，1968", "《寄生上流》奉俊昊，2019"]}, {"type": "電影", "rank": 9, "en": "Spirited Away", "zh": "神隱少女", "people": "宮崎駿 Hayao Miyazaki", "year": "", "watched": true, "recs": ["《魔法公主》宮崎駿，1997", "《霍爾的移動城堡》宮崎駿，2004", "《龍貓》宮崎駿，1988", "《蒼鷺與少年》宮崎駿，2023（奧斯卡最佳動畫）", "《螢火蟲之墓》高畑勲，1988"]}, {"type": "電影", "rank": 10, "en": "The Social Network", "zh": "社群網戰", "people": "大衛芬奇 David Fincher", "year": "", "watched": false, "recs": ["《索命黃道帶》David Fincher，2007", "《控制》David Fincher，2014", "《班傑明的奇幻旅程》David Fincher，2008", "《史帝夫賈伯斯》Danny Boyle，2015（同編劇Aaron Sorkin）", "《魔球》Bennett Miller，2011"]}, {"type": "電影", "rank": 11, "en": "Mad Max: Fury Road", "zh": "瘋狂麥斯：憤怒道", "people": "喬治米勒 George Miller", "year": "", "watched": true, "recs": ["《衝鋒飛車隊2》George Miller，1981", "《瘋狂麥斯：芙莉歐莎》George Miller，2024", "《人類之子》Alfonso Cuarón，2006", "《沙丘》Denis Villeneuve，2021", "《末日列車》奉俊昊，2013"]}, {"type": "電影", "rank": 12, "en": "The Zone of Interest", "zh": "夢想集中營", "people": "強納森格雷澤 Jonathan Glazer", "year": "", "watched": false, "recs": ["《肌膚之侵》Jonathan Glazer，2013", "《索爾之子》Nemes László，2015（坎城評審團大獎）", "《辛德勒的名單》Steven Spielberg，1993（奧斯卡最佳影片）", "《殺人一舉》Joshua Oppenheimer，2012", "《奧本海默》Christopher Nolan，2023"]}, {"type": "電影", "rank": 13, "en": "Children of Men", "zh": "人類之子", "people": "艾方索柯朗 Alfonso Cuarón", "year": "", "watched": true, "recs": ["《地心引力》Alfonso Cuarón，2013", "《羅馬》Alfonso Cuarón，2018", "《你他媽的也是》Alfonso Cuarón，2002", "《28天毀滅倒數》Danny Boyle，2002", "《銀翼殺手2049》Denis Villeneuve，2017"]}, {"type": "電影", "rank": 14, "en": "Inglourious Basterds", "zh": "惡棍特工", "people": "昆汀塔倫提諾 Quentin Tarantino", "year": "", "watched": true, "recs": ["《黑色追緝令》昆汀塔倫提諾，1994（坎城金棕櫚）", "《追殺比爾》昆汀塔倫提諾，2003", "《從前，有個好萊塢》昆汀塔倫提諾，2019", "《決殺令》昆汀塔倫提諾，2012", "《辛德勒的名單》Steven Spielberg，1993"]}, {"type": "電影", "rank": 15, "en": "City of God", "zh": "上帝之城", "people": "費南多梅瑞爾斯 Fernando Meirelles", "year": "", "watched": false, "recs": ["《男人之城》Paulo Morelli，2007", "《愛情是狗娘》Alejandro González Iñárritu，2000", "《菁英部隊》José Padilha，2007", "《米克》Hector Babenco，1981", "《貧民百萬富翁》Danny Boyle，2008（奧斯卡最佳影片）"]}, {"type": "電影", "rank": 16, "en": "Crouching Tiger, Hidden Dragon", "zh": "臥虎藏龍", "people": "李安 Ang Lee", "year": "", "watched": true, "recs": ["《斷背山》李安，2005", "《少年Pi的奇幻漂流》李安，2012", "《英雄》張藝謀，2002", "《十面埋伏》張藝謀，2004", "《一代宗師》王家衛，2013"]}, {"type": "電影", "rank": 17, "en": "Brokeback Mountain", "zh": "斷背山", "people": "李安 Ang Lee", "year": "", "watched": true, "recs": ["《臥虎藏龍》李安，2000", "《少年Pi的奇幻漂流》李安，2012", "《因為愛你》Todd Haynes，2015", "《以你的名字呼喚我》Luca Guadagnino，2017", "《月光下的藍色男孩》Barry Jenkins，2016"]}, {"type": "電影", "rank": 18, "en": "Y Tu Mamá También", "zh": "你他媽的也是", "people": "艾方索柯朗 Alfonso Cuarón", "year": "", "watched": true, "recs": ["《人類之子》Alfonso Cuarón，2006", "《羅馬》Alfonso Cuarón，2018", "《愛情是狗娘》Alejandro González Iñárritu，2000", "《革命前夕的摩托車日記》Walter Salles，2004", "《上帝之城》Fernando Meirelles，2003"]}, {"type": "電影", "rank": 19, "en": "Zodiac", "zh": "索命黃道帶", "people": "大衛芬奇 David Fincher", "year": "", "watched": false, "recs": ["《火線追緝令》David Fincher，1995", "《破案神探》影集，David Fincher，2017", "《社群網戰》David Fincher，2010", "《殺人回憶》奉俊昊，2003", "《私法爭鋒》Denis Villeneuve，2013"]}, {"type": "電影", "rank": 20, "en": "The Wolf of Wall Street", "zh": "華爾街之狼", "people": "馬丁史柯西斯 Martin Scorsese", "year": "", "watched": true, "recs": ["《四海好傢伙》Martin Scorsese，1990", "《神鬼無間》Martin Scorsese，2006（奧斯卡最佳影片）", "《賭國風雲》Martin Scorsese，1995", "《原鑽》薩夫迪兄弟，2019", "《大賣空》Adam McKay，2015"]}, {"type": "電影", "rank": 21, "en": "The Royal Tenenbaums", "zh": "天才一族", "people": "魏斯安德森 Wes Anderson", "year": "", "watched": false, "recs": ["《歡迎來到布達佩斯大飯店》Wes Anderson，2014", "《都是愛情惹的禍》Wes Anderson，1998", "《月昇冒險王國》Wes Anderson，2012", "《法蘭西特派週報》Wes Anderson，2021", "《小太陽的願望》Dayton & Faris，2006"]}, {"type": "電影", "rank": 22, "en": "The Grand Budapest Hotel", "zh": "歡迎來到布達佩斯大飯店", "people": "魏斯安德森 Wes Anderson", "year": "", "watched": true, "recs": ["《天才一族》Wes Anderson，2001", "《月昇冒險王國》Wes Anderson，2012", "《犬之島》Wes Anderson，2018", "《小行星城》Wes Anderson，2023", "《艾蜜莉的異想世界》Jean-Pierre Jeunet，2001"]}, {"type": "電影", "rank": 23, "en": "Boyhood", "zh": "年少時代", "people": "李察林克雷特 Richard Linklater", "year": "", "watched": false, "recs": ["《愛在日落巴黎時》Richard Linklater，2004", "《愛在午夜希臘時》Richard Linklater，2013", "《年少輕狂》Richard Linklater，1993", "《永生樹》Terrence Malick，2011", "《月光下的藍色男孩》Barry Jenkins，2016"]}, {"type": "電影", "rank": 24, "en": "Her", "zh": "雲端情人", "people": "史派克瓊斯 Spike Jonze", "year": "", "watched": true, "recs": ["《王牌冤家》Michel Gondry，2004", "《變腦》Spike Jonze，1999", "《愛情不用翻譯》Sofia Coppola，2003", "《人造意識》Alex Garland，2014", "《瓦力》Andrew Stanton，2008"]}, {"type": "電影", "rank": 25, "en": "Phantom Thread", "zh": "霓裳魅影", "people": "保羅湯瑪斯安德森 Paul Thomas Anderson", "year": "", "watched": false, "recs": ["《黑金企業》Paul Thomas Anderson，2007", "《大師》Paul Thomas Anderson，2012", "《蝴蝶夢》Alfred Hitchcock，1940", "《以你的名字呼喚我》Luca Guadagnino，2017", "《因為愛你》Todd Haynes，2015"]}, {"type": "電影", "rank": 26, "en": "Anatomy of a Fall", "zh": "墜惡真相", "people": "茹絲汀特里葉 Justine Triet", "year": "", "watched": true, "recs": ["《鈦》Julia Ducournau，2021（坎城金棕櫚）", "《世界上最爛的人》Joachim Trier，2021", "《聖奧梅爾》Alice Diop，2022", "《顛父人生》Maren Ade，2016", "《燃燒女子的畫像》Céline Sciamma，2019"]}, {"type": "電影", "rank": 27, "en": "Adaptation.", "zh": "蘭花賊", "people": "史派克瓊斯 Spike Jonze", "year": "", "watched": false, "recs": ["《變腦》Spike Jonze，1999", "《王牌冤家》Michel Gondry，2004", "《紐約提喻法》Charlie Kaufman，2008", "《雲端情人》Spike Jonze，2013", "《巴頓芬克》柯恩兄弟，1991"]}, {"type": "電影", "rank": 28, "en": "The Dark Knight", "zh": "黑暗騎士", "people": "克里斯多福諾蘭 Christopher Nolan", "year": "", "watched": false, "recs": ["《蝙蝠俠：開戰時刻》Christopher Nolan，2005", "《全面啟動》Christopher Nolan，2010", "《黑暗騎士：黎明昇起》Christopher Nolan，2012", "《險路勿近》柯恩兄弟，2007", "《烈火悍將》Michael Mann，1995"]}, {"type": "電影", "rank": 29, "en": "Arrival", "zh": "異星入境", "people": "丹尼維勒納夫 Denis Villeneuve", "year": "", "watched": true, "recs": ["《銀翼殺手2049》Denis Villeneuve，2017", "《沙丘》Denis Villeneuve，2021", "《怒火邊界》Denis Villeneuve，2015", "《星際效應》Christopher Nolan，2014", "《地心引力》Alfonso Cuarón，2013"]}, {"type": "電影", "rank": 30, "en": "Lost in Translation", "zh": "愛情不用翻譯", "people": "蘇菲亞柯波拉 Sofia Coppola", "year": "", "watched": false, "recs": ["《凡爾賽拜金女》Sofia Coppola，2006", "《死亡日記》Sofia Coppola，1999", "《我的失憶男友》Sofia Coppola，2010", "《王牌冤家》Michel Gondry，2004", "《雲端情人》Spike Jonze，2013"]}, {"type": "電影", "rank": 31, "en": "The Departed", "zh": "神鬼無間", "people": "馬丁史柯西斯 Martin Scorsese", "year": "", "watched": false, "recs": ["《四海好傢伙》Martin Scorsese，1990", "《華爾街之狼》Martin Scorsese，2013", "《無間道》劉偉強／麥兆輝，2002（原著）", "《紐約黑幫》Martin Scorsese，2002", "《險路勿近》柯恩兄弟，2007"]}, {"type": "電影", "rank": 32, "en": "Bridesmaids", "zh": "伴娘我最大", "people": "保羅費格 Paul Feig", "year": "", "watched": true, "recs": ["《麻辣賤諜》Paul Feig，2015", "《麻辣女警》Paul Feig，2013", "《特級麻吉》Greg Mottola，2007", "《小太陽的願望》Dayton & Faris，2006", "《狗上鏡頭》Christopher Guest，2000"]}, {"type": "電影", "rank": 33, "en": "A Separation", "zh": "一次別離", "people": "阿斯哈法哈蒂 Asghar Farhadi", "year": "", "watched": false, "recs": ["《新居風暴》Asghar Farhadi，2016（奧斯卡最佳外語片）", "《我在伊朗長大》Asghar Farhadi，2009", "《過去》Asghar Farhadi，2013", "《顛父人生》Maren Ade，2016", "《愛．慕》Michael Haneke，2012"]}, {"type": "電影", "rank": 34, "en": "WALL-E", "zh": "瓦力", "people": "安德魯史丹頓 Andrew Stanton", "year": "", "watched": true, "recs": ["《天外奇蹟》Pete Docter，2009", "《料理鼠王》Brad Bird，2007", "《雲端情人》Spike Jonze，2013", "《星際效應》Christopher Nolan，2014", "《神隱少女》宮崎駿，2001"]}, {"type": "電影", "rank": 35, "en": "A Prophet", "zh": "大獄言家", "people": "賈克歐迪亞 Jacques Audiard", "year": "", "watched": false, "recs": ["《生命是玩笑》Jacques Audiard，2012", "《流浪的迪潘》Jacques Audiard，2015（坎城金棕櫚）", "《上帝之城》Fernando Meirelles，2003", "《教父》Francis Ford Coppola，1972", "《軍中禁戀》Claire Denis，1999"]}, {"type": "電影", "rank": 36, "en": "A Serious Man", "zh": "正經好人", "people": "柯恩兄弟 Ethan & Joel Coen", "year": "", "watched": false, "recs": ["《險路勿近》柯恩兄弟，2007", "《醉鄉民謠》柯恩兄弟，2013", "《冰血暴》柯恩兄弟，1996", "《巴頓芬克》柯恩兄弟，1991", "《戀愛雞尾酒》Paul Thomas Anderson，2002"]}, {"type": "電影", "rank": 37, "en": "Call Me by Your Name", "zh": "以你的名字呼喚我", "people": "盧卡格達戈尼諾 Luca Guadagnino", "year": "", "watched": false, "recs": ["《池畔謎情》Luca Guadagnino，2015", "《斷背山》李安，2005", "《月光下的藍色男孩》Barry Jenkins，2016", "《燃燒女子的畫像》Céline Sciamma，2019", "《淑女鳥》Greta Gerwig，2017"]}, {"type": "電影", "rank": 38, "en": "Portrait of a Lady on Fire", "zh": "燃燒女子的畫像", "people": "瑟琳席安瑪 Céline Sciamma", "year": "", "watched": true, "recs": ["《petite maman》Céline Sciamma，2021", "《因為愛你》Todd Haynes，2015", "《花樣年華》王家衛，2000", "《真寵》Yorgos Lanthimos，2018", "《墜惡真相》Justine Triet，2023"]}, {"type": "電影", "rank": 39, "en": "Lady Bird", "zh": "淑女鳥", "people": "葛莉塔潔薇 Greta Gerwig", "year": "", "watched": true, "recs": ["《她們》Greta Gerwig，2019", "《芭比》Greta Gerwig，2023", "《年少時代》Richard Linklater，2014", "《以你的名字呼喚我》Luca Guadagnino，2017", "《紐約哈哈哈》Noah Baumbach，2012"]}, {"type": "電影", "rank": 40, "en": "Yi Yi", "zh": "一一", "people": "楊德昌 Edward Yang", "year": "", "watched": false, "recs": ["《牯嶺街少年殺人事件》楊德昌，1991", "《飲食男女》李安，1994", "《花樣年華》王家衛，2000", "《東京物語》小津安二郎，1953", "《羅馬》Alfonso Cuarón，2018"]}, {"type": "電影", "rank": 41, "en": "Amélie", "zh": "艾蜜莉的異想世界", "people": "尚皮耶居內 Jean-Pierre Jeunet", "year": "", "watched": true, "recs": ["《未婚妻的漫長等待》Jean-Pierre Jeunet，2004", "《童幻通緝令》Jean-Pierre Jeunet，1995", "《黑店狂想曲》Jean-Pierre Jeunet，1991", "《濃情巧克力》Lasse Hallström，2000", "《歡迎來到布達佩斯大飯店》Wes Anderson，2014"]}, {"type": "電影", "rank": 42, "en": "The Master", "zh": "大師", "people": "保羅湯瑪斯安德森 Paul Thomas Anderson", "year": "", "watched": false, "recs": ["《黑金企業》Paul Thomas Anderson，2007", "《霓裳魅影》Paul Thomas Anderson，2017", "《一舉成名》Paul Thomas Anderson，1997", "《誘惑》John Patrick Shanley，2008", "《暗黑冠軍路》Bennett Miller，2014"]}, {"type": "電影", "rank": 43, "en": "Oldboy", "zh": "原罪犯", "people": "朴贊郁 Park Chan-wook", "year": "", "watched": false, "recs": ["《復仇》朴贊郁，2002", "《親切的金子》朴贊郁，2005", "《下女的誘惑》朴贊郁，2016", "《殺人回憶》奉俊昊，2003", "《追殺比爾》昆汀塔倫提諾，2003"]}, {"type": "電影", "rank": 44, "en": "Once Upon a Time... in Hollywood", "zh": "從前，有個好萊塢", "people": "昆汀塔倫提諾 Quentin Tarantino", "year": "", "watched": true, "recs": ["《黑色追緝令》昆汀塔倫提諾，1994", "《惡棍特工》昆汀塔倫提諾，2009", "《追殺比爾》昆汀塔倫提諾，2003", "《一舉成名》Paul Thomas Anderson，1997", "《樂來越愛你》Damien Chazelle，2016"]}, {"type": "電影", "rank": 45, "en": "Moneyball", "zh": "魔球", "people": "班奈特米勒 Bennett Miller", "year": "", "watched": false, "recs": ["《社群網戰》David Fincher，2010", "《暗黑冠軍路》Bennett Miller，2014", "《柯波帝：冷血告白》Bennett Miller，2005", "《賽道狂人》James Mangold，2019", "《大賣空》Adam McKay，2015"]}, {"type": "電影", "rank": 46, "en": "Roma", "zh": "羅馬", "people": "艾方索柯朗 Alfonso Cuarón", "year": "", "watched": false, "recs": ["《人類之子》Alfonso Cuarón，2006", "《地心引力》Alfonso Cuarón，2013", "《你他媽的也是》Alfonso Cuarón，2002", "《艾格妮撿風景》Agnès Varda，2000", "《愛．慕》Michael Haneke，2012"]}, {"type": "電影", "rank": 47, "en": "Almost Famous", "zh": "成名在望", "people": "卡麥隆克洛 Cameron Crowe", "year": "", "watched": false, "recs": ["《征服情海》Cameron Crowe，1996", "《非強力春藥》Cameron Crowe，1989", "《失戀排行榜》Stephen Frears，2000", "《年少時代》Richard Linklater，2014", "《進擊的鼓手》Damien Chazelle，2014"]}, {"type": "電影", "rank": 48, "en": "The Lives of Others", "zh": "竊聽風暴", "people": "佛羅里安亨克爾馮多納斯馬克 Florian Henckel von Donnersmarck", "year": "", "watched": false, "recs": ["《夢想集中營》Jonathan Glazer，2023", "《大獄言家》Jacques Audiard，2010", "《殺人一舉》Joshua Oppenheimer，2012", "《辛德勒的名單》Steven Spielberg，1993", "《再見列寧》Wolfgang Becker，2003"]}, {"type": "電影", "rank": 49, "en": "Before Sunset", "zh": "愛在日落巴黎時", "people": "李察林克雷特 Richard Linklater", "year": "", "watched": false, "recs": ["《愛在黎明破曉時》Richard Linklater，1995", "《愛在午夜希臘時》Richard Linklater，2013", "《年少時代》Richard Linklater，2014", "《愛情不用翻譯》Sofia Coppola，2003", "《花樣年華》王家衛，2000"]}, {"type": "電影", "rank": 50, "en": "Up", "zh": "天外奇蹟", "people": "彼特達克特 Pete Docter", "year": "", "watched": true, "recs": ["《瓦力》Andrew Stanton，2008", "《腦筋急轉彎》Pete Docter，2015", "《料理鼠王》Brad Bird，2007", "《可可夜總會》Lee Unkrich，2017", "《神隱少女》宮崎駿，2001"]}, {"type": "電影", "rank": 51, "en": "12 Years a Slave", "zh": "自由之心", "people": "史蒂夫麥昆 Steve McQueen", "year": "", "watched": false, "recs": ["《恥辱》Steve McQueen，2011", "《飢餓宣言》Steve McQueen，2008", "《逐夢大道》Ava DuVernay，2014", "《月光下的藍色男孩》Barry Jenkins，2016", "《辛德勒的名單》Steven Spielberg，1993"]}, {"type": "電影", "rank": 52, "en": "The Favourite", "zh": "真寵", "people": "尤格藍西莫 Yorgos Lanthimos", "year": "", "watched": true, "recs": ["《可憐的東西》Yorgos Lanthimos，2023", "《單身動物園》Yorgos Lanthimos，2015", "《燃燒女子的畫像》Céline Sciamma，2019", "《亂世兒女》Stanley Kubrick，1975", "《凡爾賽拜金女》Sofia Coppola，2006"]}, {"type": "電影", "rank": 53, "en": "Borat", "zh": "芭樂特", "people": "賴瑞查爾斯 Larry Charles", "year": "", "watched": false, "recs": ["《芭樂特2》Larry Charles，2020", "《大娛樂家：真人版布魯諾》Larry Charles，2009", "《狗上鏡頭》Christopher Guest，2000", "《搖滾萬萬歲》Rob Reiner，1984", "《兔嘲男孩》Taika Waititi，2019"]}, {"type": "電影", "rank": 54, "en": "Pan's Labyrinth", "zh": "羊男的迷宮", "people": "吉勒摩戴托羅 Guillermo del Toro", "year": "", "watched": false, "recs": ["《水底情深》Guillermo del Toro，2017（奧斯卡最佳影片）", "《腥紅山莊》Guillermo del Toro，2015", "《皮諾丘》Guillermo del Toro，2022（奧斯卡最佳動畫）", "《神隱少女》宮崎駿，2001", "《惡靈古堡：血影の魔女》Guillermo del Toro，2001"]}, {"type": "電影", "rank": 55, "en": "Inception", "zh": "全面啟動", "people": "克里斯多福諾蘭 Christopher Nolan", "year": "", "watched": true, "recs": ["《記憶拼圖》Christopher Nolan，2000", "《星際效應》Christopher Nolan，2014", "《頂尖對決》Christopher Nolan，2006", "《奧本海默》Christopher Nolan，2023", "《異星入境》Denis Villeneuve，2016"]}, {"type": "電影", "rank": 56, "en": "Punch-Drunk Love", "zh": "戀愛雞尾酒", "people": "保羅湯瑪斯安德森 Paul Thomas Anderson", "year": "", "watched": false, "recs": ["《黑金企業》Paul Thomas Anderson，2007", "《心靈角落》Paul Thomas Anderson，1999", "《原鑽》薩夫迪兄弟，2019", "《王牌冤家》Michel Gondry，2004", "《愛情不用翻譯》Sofia Coppola，2003"]}, {"type": "電影", "rank": 57, "en": "Best in Show", "zh": "狗上鏡頭", "people": "克里斯多福蓋斯特 Christopher Guest", "year": "", "watched": false, "recs": ["《等待古佛曼》Christopher Guest，1996", "《風雲人物》Christopher Guest，2003", "《芭樂特》Larry Charles，2006", "《搖滾萬萬歲》Rob Reiner，1984", "《公園與遊憩》影集，Greg Daniels，2009"]}, {"type": "電影", "rank": 58, "en": "Uncut Gems", "zh": "原鑽", "people": "薩夫迪兄弟 Benny & Josh Safdie", "year": "", "watched": false, "recs": ["《好時光》薩夫迪兄弟，2017", "《戀愛雞尾酒》Paul Thomas Anderson，2002", "《華爾街之狼》Martin Scorsese，2013", "《進擊的鼓手》Damien Chazelle，2014", "《噩夢輓歌》Darren Aronofsky，2000"]}, {"type": "電影", "rank": 59, "en": "Toni Erdmann", "zh": "顛父人生", "people": "瑪倫艾德 Maren Ade", "year": "", "watched": false, "recs": ["《世界上最爛的人》Joachim Trier，2021", "《婚姻風暴》Ruben Östlund，2014", "《一次別離》Asghar Farhadi，2011", "《紐約哈哈哈》Noah Baumbach，2012", "《愛．慕》Michael Haneke，2012"]}, {"type": "電影", "rank": 60, "en": "Whiplash", "zh": "進擊的鼓手", "people": "戴米恩查澤雷 Damien Chazelle", "year": "", "watched": true, "recs": ["《樂來越愛你》Damien Chazelle，2016", "《登月先鋒》Damien Chazelle，2018", "《巴比倫》Damien Chazelle，2022", "《成名在望》Cameron Crowe，2000", "《黑天鵝》Darren Aronofsky，2010"]}, {"type": "電影", "rank": 61, "en": "Kill Bill: Vol. 1", "zh": "追殺比爾", "people": "昆汀塔倫提諾 Quentin Tarantino", "year": "", "watched": true, "recs": ["《黑色追緝令》昆汀塔倫提諾，1994", "《惡棍特工》昆汀塔倫提諾，2009", "《追殺比爾2》昆汀塔倫提諾，2004", "《原罪犯》朴贊郁，2003", "《玩命再劫》昆汀塔倫提諾，2007"]}, {"type": "電影", "rank": 62, "en": "Memento", "zh": "記憶拼圖", "people": "克里斯多福諾蘭 Christopher Nolan", "year": "", "watched": true, "recs": ["《全面啟動》Christopher Nolan，2010", "《頂尖對決》Christopher Nolan，2006", "《跟蹤》Christopher Nolan，1998", "《穆荷蘭大道》David Lynch，2001", "《原罪犯》朴贊郁，2003"]}, {"type": "電影", "rank": 63, "en": "Little Miss Sunshine", "zh": "小太陽的願望", "people": "強納森戴頓／薇拉莉法瑞絲 Dayton & Faris", "year": "", "watched": false, "recs": ["《鴻孕當頭》Jason Reitman，2007", "《伴娘我最大》Paul Feig，2011", "《天才一族》Wes Anderson，2001", "《神power老爸》Matt Ross，2016", "《心的方向》Alexander Payne，2002"]}, {"type": "電影", "rank": 64, "en": "Gone Girl", "zh": "控制", "people": "大衛芬奇 David Fincher", "year": "", "watched": true, "recs": ["《索命黃道帶》David Fincher，2007", "《火線追緝令》David Fincher，1995", "《私法爭鋒》Denis Villeneuve，2013", "《利器》影集，大衛芬奇監製，2018", "《獨家腥聞》Dan Gilroy，2014"]}, {"type": "電影", "rank": 65, "en": "Oppenheimer", "zh": "奧本海默", "people": "克里斯多福諾蘭 Christopher Nolan", "year": "", "watched": true, "recs": ["《敦克爾克大行動》Christopher Nolan，2017", "《星際效應》Christopher Nolan，2014", "《夢想集中營》Jonathan Glazer，2023", "《辛德勒的名單》Steven Spielberg，1993", "《誰殺了甘迺迪》Oliver Stone，1991"]}, {"type": "電影", "rank": 66, "en": "Spotlight", "zh": "驚爆焦點", "people": "湯姆麥卡錫 Tom McCarthy", "year": "", "watched": false, "recs": ["《大陰謀》Alan J. Pakula，1976", "《她說》Maria Schrader，2022", "《郵報：密戰》Steven Spielberg，2017", "《全面反擊》Tony Gilroy，2007", "《索命黃道帶》David Fincher，2007"]}, {"type": "電影", "rank": 67, "en": "Tár", "zh": "塔爾", "people": "陶德費爾德 Todd Field", "year": "", "watched": true, "recs": ["《黑天鵝》Darren Aronofsky，2010", "《進擊的鼓手》Damien Chazelle，2014", "《犬山記》Jane Campion，2021", "《霓裳魅影》Paul Thomas Anderson，2017", "《世界上最爛的人》Joachim Trier，2021"]}, {"type": "電影", "rank": 68, "en": "The Hurt Locker", "zh": "危機倒數", "people": "凱薩琳畢格羅 Kathryn Bigelow", "year": "", "watched": false, "recs": ["《00:30凌晨密令》Kathryn Bigelow，2012", "《底特律》Kathryn Bigelow，2017", "《黑鷹計畫》Ridley Scott，2001", "《美國狙擊手》Clint Eastwood，2014", "《鍋蓋頭》Sam Mendes，2005"]}, {"type": "電影", "rank": 69, "en": "Under the Skin", "zh": "肌膚之侵", "people": "強納森格雷澤 Jonathan Glazer", "year": "", "watched": true, "recs": ["《夢想集中營》Jonathan Glazer，2023", "《出生》Jonathan Glazer，2004", "《人造意識》Alex Garland，2014", "《滅絕》Alex Garland，2018", "《驚悚末日》Lars von Trier，2011"]}, {"type": "電影", "rank": 70, "en": "Let the Right One In", "zh": "血色入侵", "people": "湯瑪斯艾佛森 Tomas Alfredson", "year": "", "watched": false, "recs": ["《噬血童話》Matt Reeves，2010（美版重拍）", "《諜影行動》Tomas Alfredson，2011", "《蝙蝠》朴贊郁，2009", "《噬血戀人》Jim Jarmusch，2013", "《夜行者的女兒》Ana Lily Amirpour，2014"]}, {"type": "電影", "rank": 71, "en": "Ocean's Eleven", "zh": "瞞天過海", "people": "史蒂芬索德柏 Steven Soderbergh", "year": "", "watched": true, "recs": ["《瞞天過海：長驅直入》Steven Soderbergh，2004", "《瞞天過海：龍虎機密》Steven Soderbergh，2017", "《性感野獸》Jonathan Glazer，2000", "《偷天換日》F. Gary Gray，2003", "《戰略高手》Steven Soderbergh，1998"]}, {"type": "電影", "rank": 72, "en": "Carol", "zh": "因為愛你", "people": "陶德海恩斯 Todd Haynes", "year": "", "watched": true, "recs": ["《遠離天堂》Todd Haynes，2002", "《搖滾啟示錄》Todd Haynes，2007", "《斷背山》李安，2005", "《燃燒女子的畫像》Céline Sciamma，2019", "《花樣年華》王家衛，2000"]}, {"type": "電影", "rank": 73, "en": "Ratatouille", "zh": "料理鼠王", "people": "布萊德柏德 Brad Bird", "year": "", "watched": true, "recs": ["《超人特攻隊》Brad Bird，2004", "《天外奇蹟》Pete Docter，2009", "《瓦力》Andrew Stanton，2008", "《可可夜總會》Lee Unkrich，2017", "《神隱少女》宮崎駿，2001"]}, {"type": "電影", "rank": 74, "en": "The Florida Project", "zh": "佛羅里達樂園", "people": "西恩貝克 Sean Baker", "year": "", "watched": true, "recs": ["《夜晚還年輕》Sean Baker，2015", "《艾諾拉》Sean Baker，2024（奧斯卡最佳影片）", "《漩渦系》Anna Rose Holmer，2015", "《遊牧人生》Chloé Zhao，2020", "《美國蜜糖》Andrea Arnold，2016"]}, {"type": "電影", "rank": 75, "en": "Amour", "zh": "愛．慕", "people": "麥可漢內克 Michael Haneke", "year": "", "watched": true, "recs": ["《白色緞帶》Michael Haneke，2009（坎城金棕櫚）", "《隱藏攝影機》Michael Haneke，2005", "《一次別離》Asghar Farhadi，2011", "《我想念我自己》Richard Glatzer／Wash Westmoreland，2014", "《父親》Florian Zeller，2020"]}, {"type": "電影", "rank": 76, "en": "O Brother, Where Art Thou?", "zh": "霹靂高手", "people": "柯恩兄弟 Ethan & Joel Coen", "year": "", "watched": false, "recs": ["《冰血暴》柯恩兄弟，1996", "《撫養亞歷桑那》柯恩兄弟，1987", "《謀殺綠腳趾》柯恩兄弟，1998", "《醉鄉民謠》柯恩兄弟，2013", "《冷山》Anthony Minghella，2003"]}, {"type": "電影", "rank": 77, "en": "Everything Everywhere All at Once", "zh": "媽的多重宇宙", "people": "關家永／丹尼關 Daniels", "year": "", "watched": true, "recs": ["《瑞士軍刀男》Daniels，2016", "《蜘蛛人：新宇宙》2018（奧斯卡最佳動畫）", "《駭客任務》華卓斯基姊妹，1999", "《功夫》周星馳，2004", "《寄生上流》奉俊昊，2019"]}, {"type": "電影", "rank": 78, "en": "Aftersun", "zh": "日麗", "people": "夏綠蒂威爾斯 Charlotte Wells", "year": "", "watched": true, "recs": ["《世界上最爛的人》Joachim Trier，2021", "《20世紀女人》Mike Mills，2016", "《月光下的藍色男孩》Barry Jenkins，2016", "《之前的我們》Celine Song，2023", "《年少時代》Richard Linklater，2014"]}, {"type": "電影", "rank": 79, "en": "The Tree of Life", "zh": "永生樹", "people": "泰倫斯馬立克 Terrence Malick", "year": "", "watched": false, "recs": ["《天堂之日》Terrence Malick，1978", "《紅色警戒》Terrence Malick，1998", "《隱藏的生活》Terrence Malick，2019", "《年少時代》Richard Linklater，2014", "《波米叔叔的前世今生》Apichatpong Weerasethakul，2010（坎城金棕櫚）"]}, {"type": "電影", "rank": 80, "en": "Volver", "zh": "玩美女人", "people": "佩卓阿莫多瓦 Pedro Almodóvar", "year": "", "watched": false, "recs": ["《我的母親》Pedro Almodóvar，1999（奧斯卡最佳外語片）", "《悄悄告訴她》Pedro Almodóvar，2002", "《痛苦與榮耀》Pedro Almodóvar，2019", "《平行母親》Pedro Almodóvar，2021", "《你他媽的也是》Alfonso Cuarón，2002"]}, {"type": "電影", "rank": 81, "en": "Black Swan", "zh": "黑天鵝", "people": "戴倫艾洛諾夫斯基 Darren Aronofsky", "year": "", "watched": true, "recs": ["《噩夢輓歌》Darren Aronofsky，2000", "《力挽狂瀾》Darren Aronofsky，2008", "《母親！》Darren Aronofsky，2017", "《進擊的鼓手》Damien Chazelle，2014", "《塔爾》Todd Field，2022"]}, {"type": "電影", "rank": 82, "en": "The Act of Killing", "zh": "殺人一舉", "people": "約書亞奧本海默 Joshua Oppenheimer", "year": "", "watched": true, "recs": ["《沉默一瞬》Joshua Oppenheimer，2014", "《灰熊人》Werner Herzog，2005", "《艾格妮撿風景》Agnès Varda，2000", "《夢想集中營》Jonathan Glazer，2023", "《與巴席爾跳華爾滋》Ari Folman，2008"]}, {"type": "電影", "rank": 83, "en": "Inside Llewyn Davis", "zh": "醉鄉民謠", "people": "柯恩兄弟 Ethan & Joel Coen", "year": "", "watched": true, "recs": ["《正經好人》柯恩兄弟，2009", "《霹靂高手》柯恩兄弟，2000", "《冰血暴》柯恩兄弟，1996", "《成名在望》Cameron Crowe，2000", "《紐約哈哈哈》Noah Baumbach，2012"]}, {"type": "電影", "rank": 84, "en": "Melancholia", "zh": "驚悚末日", "people": "拉斯馮提爾 Lars von Trier", "year": "", "watched": false, "recs": ["《撒旦的情與慾》Lars von Trier，2009", "《在黑暗中漫舞》Lars von Trier，2000（坎城金棕櫚）", "《性愛成癮的女人》Lars von Trier，2013", "《肌膚之侵》Jonathan Glazer，2013", "《永生樹》Terrence Malick，2011"]}, {"type": "電影", "rank": 85, "en": "Anchorman: The Legend of Ron Burgundy", "zh": "銀幕大角頭", "people": "亞當麥凱 Adam McKay", "year": "", "watched": false, "recs": ["《半路兄弟》Adam McKay，2008", "《王牌播音員2》Adam McKay，2013", "《大賣空》Adam McKay，2015", "《狗上鏡頭》Christopher Guest，2000", "《特級麻吉》Greg Mottola，2007"]}, {"type": "電影", "rank": 86, "en": "Past Lives", "zh": "之前的我們", "people": "席琳宋 Celine Song", "year": "", "watched": true, "recs": ["《日麗》Charlotte Wells，2022", "《世界上最爛的人》Joachim Trier，2021", "《愛情不用翻譯》Sofia Coppola，2003", "《愛在日落巴黎時》Richard Linklater，2004", "《花樣年華》王家衛，2000"]}, {"type": "電影", "rank": 87, "en": "The Lord of the Rings: The Fellowship of the Ring", "zh": "魔戒首部曲：魔戒現身", "people": "彼得傑克森 Peter Jackson", "year": "", "watched": false, "recs": ["《魔戒二部曲：雙城奇謀》Peter Jackson，2002", "《魔戒三部曲：王者再臨》Peter Jackson，2003（奧斯卡最佳影片）", "《金剛》Peter Jackson，2005", "《沙丘》Denis Villeneuve，2021", "《瘋狂麥斯：憤怒道》George Miller，2015"]}, {"type": "電影", "rank": 88, "en": "The Gleaners and I", "zh": "艾格妮撿風景", "people": "安妮華達 Agnès Varda", "year": "", "watched": false, "recs": ["《殺人一舉》Joshua Oppenheimer，2012", "《灰熊人》Werner Herzog，2005", "《我和我的貝勒芳》Agnès Varda／JR，2017", "《遊牧人生》Chloé Zhao，2020", "《羅馬》Alfonso Cuarón，2018"]}, {"type": "電影", "rank": 89, "en": "Interstellar", "zh": "星際效應", "people": "克里斯多福諾蘭 Christopher Nolan", "year": "", "watched": true, "recs": ["《地心引力》Alfonso Cuarón，2013", "《異星入境》Denis Villeneuve，2016", "《全面啟動》Christopher Nolan，2010", "《永生樹》Terrence Malick，2011", "《奧本海默》Christopher Nolan，2023"]}, {"type": "電影", "rank": 90, "en": "Frances Ha", "zh": "紐約哈哈哈", "people": "諾亞包姆巴赫 Noah Baumbach", "year": "", "watched": false, "recs": ["《淑女鳥》Greta Gerwig，2017", "《紐約哈哈哈2》Noah Baumbach，2015", "《婚姻故事》Noah Baumbach，2019", "《年少時代》Richard Linklater，2014", "《女孩我最大》影集，Lena Dunham，2012"]}, {"type": "電影", "rank": 91, "en": "Fish Tank", "zh": "魚缸", "people": "安德里亞阿諾德 Andrea Arnold", "year": "", "watched": false, "recs": ["《美國蜜糖》Andrea Arnold，2016", "《紅路》Andrea Arnold，2006", "《佛羅里達樂園》Sean Baker，2017", "《這就是英格蘭》Shane Meadows，2006", "《珍愛人生》Lee Daniels，2009"]}, {"type": "電影", "rank": 92, "en": "Gladiator", "zh": "神鬼戰士", "people": "雷利史考特 Ridley Scott", "year": "", "watched": false, "recs": ["《怒海爭鋒》Peter Weir，2003", "《英雄本色》Mel Gibson，1995（奧斯卡最佳影片）", "《最後的決鬥》Ridley Scott，2021", "《王者天下》Ridley Scott，2005", "《拿破崙》Ridley Scott，2023"]}, {"type": "電影", "rank": 93, "en": "Michael Clayton", "zh": "全面反擊", "people": "東尼吉爾洛伊 Tony Gilroy", "year": "", "watched": false, "recs": ["《驚爆焦點》Tom McCarthy，2015", "《永不妥協》Steven Soderbergh，2000", "《驚爆內幕》Michael Mann，1999", "《諜對諜》Stephen Gaghan，2005", "《大陰謀》Alan J. Pakula，1976"]}, {"type": "電影", "rank": 94, "en": "Minority Report", "zh": "關鍵報告", "people": "史蒂芬史匹柏 Steven Spielberg", "year": "", "watched": false, "recs": ["《人工智慧》Steven Spielberg，2001", "《世界大戰》Steven Spielberg，2005", "《銀翼殺手》Ridley Scott，1982", "《異星入境》Denis Villeneuve，2016", "《人類之子》Alfonso Cuarón，2006"]}, {"type": "電影", "rank": 95, "en": "The Worst Person in the World", "zh": "世界上最爛的人", "people": "尤沃金提爾 Joachim Trier", "year": "", "watched": true, "recs": ["《怒吼春天》Joachim Trier，2006", "《八月三十一日，我在奧斯陸》Joachim Trier，2011", "《紐約哈哈哈》Noah Baumbach，2012", "《日麗》Charlotte Wells，2022", "《之前的我們》Celine Song，2023"]}, {"type": "電影", "rank": 96, "en": "Black Panther", "zh": "黑豹", "people": "雷恩庫格勒 Ryan Coogler", "year": "", "watched": true, "recs": ["《金牌拳手》Ryan Coogler，2015", "《原罪之城》Ryan Coogler，2025", "《芬妮的最後一戰》Ryan Coogler，2013", "《蜘蛛人：新宇宙》2018（奧斯卡最佳動畫）", "《逃出絕命鎮》Jordan Peele，2017"]}, {"type": "電影", "rank": 97, "en": "Gravity", "zh": "地心引力", "people": "艾方索柯朗 Alfonso Cuarón", "year": "", "watched": false, "recs": ["《人類之子》Alfonso Cuarón，2006", "《羅馬》Alfonso Cuarón，2018", "《星際效應》Christopher Nolan，2014", "《絕地救援》Ridley Scott，2015", "《阿波羅13號》Ron Howard，1995"]}, {"type": "電影", "rank": 98, "en": "Grizzly Man", "zh": "灰熊人", "people": "韋納荷索 Werner Herzog", "year": "", "watched": false, "recs": ["《殺人一舉》Joshua Oppenheimer，2012", "《阿拉斯加之死》Sean Penn，2007", "《艾格妮撿風景》Agnès Varda，2000", "《陸上行舟》Werner Herzog，1982", "《赤手登峰》Elizabeth Chai Vasarhelyi／Jimmy Chin，2018（奧斯卡最佳紀錄片）"]}, {"type": "電影", "rank": 99, "en": "Memories of Murder", "zh": "殺人回憶", "people": "奉俊昊 Bong Joon Ho", "year": "", "watched": false, "recs": ["《寄生上流》奉俊昊，2019", "《非常母親》奉俊昊，2010", "《索命黃道帶》David Fincher，2007", "《原罪犯》朴贊郁，2003", "《追擊者》羅泓軫，2008"]}, {"type": "電影", "rank": 100, "en": "Superbad", "zh": "特級麻吉", "people": "葛雷格莫托拉 Greg Mottola", "year": "", "watched": false, "recs": ["《狗上鏡頭》Christopher Guest，2000", "《銀幕大角頭》Adam McKay，2004", "《伴娘我最大》Paul Feig，2011", "《好孕臨門》Judd Apatow，2007", "《成名在望》Cameron Crowe，2000"]}, {"type": "影集", "rank": 21, "en": "The White Lotus", "zh": "白蓮花大飯店", "people": "Mike White", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 22, "en": "Lost", "zh": "檔案／萊拓", "people": "J.J. Abrams, Damon Lindelof", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 23, "en": "The Comeback", "zh": "The Comeback", "people": "Lisa Kudrow, Michael Patrick King", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 24, "en": "Deadwood", "zh": "Deadwood", "people": "David Milch", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 25, "en": "The Leftovers", "zh": "末日餘生", "people": "Damon Lindelof, Tom Perrotta", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 26, "en": "Black Mirror", "zh": "黑鏡", "people": "Charlie Brooker", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 27, "en": "Better Call Saul", "zh": "絕命律師", "people": "Vince Gilligan, Peter Gould", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 28, "en": "Band of Brothers", "zh": "諾曼第大空降", "people": "Tom Hanks, Steven Spielberg", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 29, "en": "Key & Peele", "zh": "Key & Peele", "people": "Keegan-Michael Key, Jordan Peele", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 30, "en": "Severance", "zh": "人生切割術", "people": "Dan Erickson", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 31, "en": "Survivor", "zh": "我要活下去", "people": "Mark Burnett", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 32, "en": "Andor", "zh": "安多", "people": "Tony Gilroy", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 33, "en": "Enlightened", "zh": "Enlightened", "people": "Mike White, Laura Dern", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 34, "en": "Schitt's Creek", "zh": "富貴窮鄉", "people": "Eugene Levy, Dan Levy", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 35, "en": "True Detective (Season 1)", "zh": "無間警探（第一季）", "people": "Nic Pizzolatto", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 36, "en": "The Pitt", "zh": "The Pitt", "people": "R. Scott Gemmill", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 37, "en": "Battlestar Galactica", "zh": "星際大爭霸", "people": "Ronald D. Moore", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 38, "en": "Homeland", "zh": "反恐危機", "people": "Howard Gordon, Alex Gansa", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 39, "en": "Watchmen", "zh": "守護者", "people": "Damon Lindelof", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 40, "en": "Adolescence", "zh": "混沌少年時", "people": "Jack Thorne, Stephen Graham", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 41, "en": "Louie", "zh": "Louie", "people": "Louis C.K.", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 42, "en": "Hacks", "zh": "大嘴女喜劇進行式", "people": "Lucia Aniello, Paul W. Downs, Jen Statsky", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 43, "en": "Peaky Blinders", "zh": "浴血黑幫", "people": "Steven Knight", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 44, "en": "BoJack Horseman", "zh": "馬男波傑克", "people": "Raphael Bob-Waksberg", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 45, "en": "Happy Valley", "zh": "Happy Valley", "people": "Sally Wainwright", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 46, "en": "Broad City", "zh": "Broad City", "people": "Abbi Jacobson, Ilana Glazer", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 47, "en": "Twin Peaks: The Return", "zh": "雙峰：回歸", "people": "David Lynch, Mark Frost", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 48, "en": "House of Cards", "zh": "紙牌屋", "people": "Beau Willimon", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 49, "en": "Normal People", "zh": "正常人", "people": "Sally Rooney, Alice Birch", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 50, "en": "Parks and Recreation", "zh": "公園與遊憩", "people": "Greg Daniels, Michael Schur", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 51, "en": "The Good Place", "zh": "良善之地", "people": "Michael Schur", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 52, "en": "Downton Abbey", "zh": "唐頓莊園", "people": "Julian Fellowes", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 53, "en": "Stranger Things", "zh": "怪奇物語", "people": "The Duffer Brothers", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 54, "en": "The Bureau (Le Bureau des Légendes)", "zh": "諜報局", "people": "Éric Rochant", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 55, "en": "Insecure", "zh": "Insecure", "people": "Issa Rae, Larry Wilmore", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 56, "en": "Nathan for You", "zh": "Nathan for You", "people": "Nathan Fielder", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 57, "en": "I Think You Should Leave with Tim Robinson", "zh": "我覺得你該離開", "people": "Tim Robinson", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 58, "en": "Chappelle's Show", "zh": "Chappelle's Show", "people": "Dave Chappelle, Neal Brennan", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 59, "en": "PEN15", "zh": "PEN15", "people": "Maya Erskine, Anna Konkle", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 60, "en": "Peep Show", "zh": "Peep Show", "people": "Sam Bain, Jesse Armstrong", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 61, "en": "RuPaul's Drag Race", "zh": "魯保羅變裝皇后秀", "people": "RuPaul", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 62, "en": "Slow Horses", "zh": "慢馬", "people": "Will Smith (編劇)", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 63, "en": "The Thick of It", "zh": "The Thick of It", "people": "Armando Iannucci", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 64, "en": "Anthony Bourdain: Parts Unknown", "zh": "波登不設限", "people": "Anthony Bourdain", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 65, "en": "Mare of Easttown", "zh": "東城奇案", "people": "Brad Ingelsby", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 66, "en": "The Rehearsal", "zh": "排練", "people": "Nathan Fielder", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 67, "en": "The Handmaid's Tale", "zh": "使女的故事", "people": "Bruce Miller", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 68, "en": "Ozark", "zh": "奧札克", "people": "Bill Dubuque, Mark Williams", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 69, "en": "Anthony Bourdain: No Reservations", "zh": "波登闖異地", "people": "Anthony Bourdain", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 70, "en": "The Shield", "zh": "The Shield", "people": "Shawn Ryan", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 71, "en": "Beef", "zh": "怒嗆人生", "people": "Lee Sung Jin", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 72, "en": "Squid Game", "zh": "魷魚遊戲", "people": "Hwang Dong-hyuk", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 73, "en": "Barry", "zh": "Barry", "people": "Alec Berg, Bill Hader", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 74, "en": "The Bear", "zh": "熊餐廳", "people": "Christopher Storer", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 75, "en": "Ted Lasso", "zh": "泰德拉索", "people": "Bill Lawrence, Jason Sudeikis", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 76, "en": "Somebody Somewhere", "zh": "Somebody Somewhere", "people": "Hannah Bos, Paul Thureen", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 77, "en": "Modern Family", "zh": "摩登家庭", "people": "Christopher Lloyd, Steven Levitan", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 78, "en": "It's Always Sunny in Philadelphia", "zh": "費城一直是晴天", "people": "Rob McElhenney", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 79, "en": "The Good Wife", "zh": "傲骨賢妻", "people": "Robert King, Michelle King", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 80, "en": "How To with John Wilson", "zh": "約翰威爾森教你做", "people": "John Wilson", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 81, "en": "The Queen's Gambit", "zh": "后翼棄兵", "people": "Scott Frank", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 82, "en": "Better Things", "zh": "Better Things", "people": "Pamela Adlon, Louis C.K.", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 83, "en": "Justified", "zh": "火線警探", "people": "Graham Yost", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 84, "en": "Planet Earth", "zh": "地球脈動", "people": "David Attenborough", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 85, "en": "The Great British Baking Show", "zh": "英國烘焙大賽", "people": "（實境節目）", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 86, "en": "Shōgun", "zh": "將軍", "people": "Rachel Kondo, Justin Marks", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 87, "en": "Reservation Dogs", "zh": "保留地狗仔隊", "people": "Sterlin Harjo, Taika Waititi", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 88, "en": "Dexter", "zh": "嗜血法醫", "people": "James Manos Jr.", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 89, "en": "Baby Reindeer", "zh": "Baby Reindeer", "people": "Richard Gadd", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 90, "en": "Eastbound & Down", "zh": "Eastbound & Down", "people": "Jody Hill, Danny McBride", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 91, "en": "Catastrophe", "zh": "Catastrophe", "people": "Sharon Horgan, Rob Delaney", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 92, "en": "The Night Of", "zh": "漫漫長夜", "people": "Richard Price, Steven Zaillian", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 93, "en": "Station Eleven", "zh": "第十一號車站", "people": "Patrick Somerville", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 94, "en": "The Diplomat", "zh": "外交官", "people": "Debora Cahn", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 95, "en": "House", "zh": "怪醫豪斯", "people": "David Shore", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 96, "en": "Halt and Catch Fire", "zh": "Halt and Catch Fire", "people": "Christopher Cantwell, Christopher C. Rogers", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 97, "en": "Community", "zh": "廢柴聯盟", "people": "Dan Harmon", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 98, "en": "The OA", "zh": "The OA", "people": "Brit Marling, Zal Batmanglij", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 99, "en": "Gilmore Girls", "zh": "吉爾莫女孩", "people": "Amy Sherman-Palladino", "year": "", "watched": false, "recs": []}, {"type": "影集", "rank": 100, "en": "Scandal", "zh": "醜聞風暴", "people": "Shonda Rhimes", "year": "", "watched": false, "recs": []}];
+const STORAGE_KEY = "nyt100_tw_dashboard_v2";
+const CUSTOM_KEY = "nyt100_tw_dashboard_custom_v2";
+const PLATFORMS = ["","Netflix","Disney+","HBO Max","Apple TV+","CATCHPLAY+","myVideo","friDay影音","LINE TV","愛奇藝國際站","Prime Video","院線/藍光","查無上架","待確認"];
+
+function keyOf(item){ return item.type + "::" + item.en; }
+
+let state = {};
+let custom = [];
+try{ state = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }catch(e){ state = {}; }
+try{ custom = JSON.parse(localStorage.getItem(CUSTOM_KEY) || "[]"); }catch(e){ custom = []; }
+
+function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
+function saveCustom(){ try{ localStorage.setItem(CUSTOM_KEY, JSON.stringify(custom)); }catch(e){} }
+
+// bake in the watched status from the user's uploaded Excel, but never overwrite
+// something the user has already changed in THIS dashboard before.
+BASE_ITEMS.forEach(it=>{
+  const k = keyOf(it);
+  if(!(k in state) && it.watched){ state[k] = { watched: true }; }
+});
+saveState();
+
+function allItems(){ return BASE_ITEMS.concat(custom); }
+function justwatchUrl(item){ return "https://www.justwatch.com/tw/search?q=" + encodeURIComponent(item.en || item.zh); }
+function googleUrl(item){ return "https://www.google.com/search?q=" + encodeURIComponent((item.zh||"")+" "+(item.en||"")+" 台灣 哪個平台 線上看"); }
+
+let filter = { type:"all", q:"", watched:false, unwatched:false, haveplatform:false };
+let openRec = {};
+
+function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+function render(){
+  const list = document.getElementById("list");
+  const items = allItems().filter(it=>{
+    if(filter.type!=="all" && it.type!==filter.type) return false;
+    if(filter.q){
+      const hay=(it.zh+" "+it.en+" "+(it.people||"")).toLowerCase();
+      if(!hay.includes(filter.q.toLowerCase())) return false;
+    }
+    const st = state[keyOf(it)] || {};
+    if(filter.watched && !st.watched) return false;
+    if(filter.unwatched && st.watched) return false;
+    if(filter.haveplatform && !st.platform) return false;
+    return true;
+  });
+
+  list.innerHTML = "";
+  document.getElementById("emptyMsg").style.display = items.length? "none":"block";
+
+  items.forEach(it=>{
+    const k = keyOf(it);
+    const st = state[k] || {};
+    const card = document.createElement("div");
+    card.className = "card" + (st.watched? " iswatched":"");
+    const badgeClass = it.type==="電影" ? "movie":"tv";
+    const hasRecs = it.recs && it.recs.length;
+
+    card.innerHTML = `
+      <div class="rowtop">
+        <span class="rank">#${it.rank||""}</span>
+        <span class="badge ${badgeClass}">${it.type}</span>
+        <div class="titles">
+          <div class="zh">${escapeHtml(it.zh)}</div>
+          <div class="en">${escapeHtml(it.en)}</div>
+        </div>
+        <div class="people">${escapeHtml(it.people||"")}</div>
+        <div class="actions">
+          <a class="searchbtn" target="_blank" rel="noopener" href="${justwatchUrl(it)}">🔎 JustWatch TW</a>
+          <a class="searchbtn" target="_blank" rel="noopener" href="${googleUrl(it)}">🔎 Google</a>
+          <select class="platform ${st.platform?'set':''}" data-key="${k}"></select>
+          <label class="watched ${st.watched?'on':''}"><input type="checkbox" data-key="${k}" ${st.watched?'checked':''}> 已看</label>
+          ${hasRecs ? `<button class="recbtn" data-key="${k}">🎞 延伸推薦</button>` : ""}
+        </div>
+      </div>
+      ${hasRecs ? `<div class="recbox ${openRec[k]?'open':''}" data-recbox="${k}">
+          <ul>${it.recs.map(r=>`<li>${escapeHtml(r)}</li>`).join("")}</ul>
+        </div>` : ""}
+    `;
+    const sel = card.querySelector("select.platform");
+    PLATFORMS.forEach(p=>{
+      const opt = document.createElement("option");
+      opt.value = p; opt.textContent = p || "尚未記錄";
+      if((st.platform||"")===p) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener("change", e=>{
+      const key = e.target.getAttribute("data-key");
+      state[key] = state[key] || {};
+      state[key].platform = e.target.value;
+      saveState();
+      e.target.classList.toggle("set", !!e.target.value);
+    });
+    card.querySelector("input[type=checkbox]").addEventListener("change", e=>{
+      const key = e.target.getAttribute("data-key");
+      state[key] = state[key] || {};
+      state[key].watched = e.target.checked;
+      saveState();
+      render();
+    });
+    const recBtn = card.querySelector(".recbtn");
+    if(recBtn){
+      recBtn.addEventListener("click", ()=>{
+        openRec[k] = !openRec[k];
+        card.querySelector(`[data-recbox="${k}"]`).classList.toggle("open", openRec[k]);
+      });
+    }
+    list.appendChild(card);
+  });
+
+  const total = allItems().length;
+  const watchedCount = Object.values(state).filter(s=>s.watched).length;
+  const platformCount = Object.values(state).filter(s=>s.platform).length;
+  document.getElementById("stats").innerHTML =
+    `共 <b>${total}</b> 部　｜　已看 <b>${watchedCount}</b> 部　｜　未看 <b>${total-watchedCount}</b> 部　｜　已記錄平台 <b>${platformCount}</b> 部`;
+}
+
+document.getElementById("q").addEventListener("input", e=>{ filter.q = e.target.value; render(); });
+document.querySelectorAll(".chip[data-type]").forEach(chip=>{
+  chip.addEventListener("click", ()=>{
+    document.querySelectorAll(".chip[data-type]").forEach(c=>c.classList.remove("active"));
+    chip.classList.add("active");
+    filter.type = chip.getAttribute("data-type");
+    render();
+  });
+});
+document.querySelector(".chip[data-watched]").addEventListener("click", function(){
+  filter.watched = !filter.watched;
+  if(filter.watched){ filter.unwatched = false; document.querySelector(".chip[data-unwatched]").classList.remove("active"); }
+  this.classList.toggle("active", filter.watched); render();
+});
+document.querySelector(".chip[data-unwatched]").addEventListener("click", function(){
+  filter.unwatched = !filter.unwatched;
+  if(filter.unwatched){ filter.watched = false; document.querySelector(".chip[data-watched]").classList.remove("active"); }
+  this.classList.toggle("active", filter.unwatched); render();
+});
+document.querySelector(".chip[data-haveplatform]").addEventListener("click", function(){
+  filter.haveplatform = !filter.haveplatform; this.classList.toggle("active", filter.haveplatform); render();
+});
+document.getElementById("addBtn").addEventListener("click", ()=>{
+  const zh = document.getElementById("newZh").value.trim();
+  const en = document.getElementById("newEn").value.trim();
+  const type = document.getElementById("newType").value;
+  if(!zh && !en) return;
+  custom.push({type, rank:"", en: en||zh, zh: zh||en, people:"", recs:[]});
+  saveCustom();
+  document.getElementById("newZh").value=""; document.getElementById("newEn").value="";
+  render();
+});
+
+document.getElementById("exportBtn").addEventListener("click", ()=>{
+  try{
+    const payload = { exportedAt: new Date().toISOString(), state, custom };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "nyt100_觀看紀錄備份.json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }catch(e){ alert("匯出失敗：" + e.message); }
+});
+document.getElementById("importBtn").addEventListener("click", ()=>{
+  document.getElementById("fileInput").click();
+});
+document.getElementById("fileInput").addEventListener("change", e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const payload = JSON.parse(reader.result);
+      if(payload.state){ state = Object.assign({}, state, payload.state); saveState(); }
+      if(payload.custom){ custom = payload.custom; saveCustom(); }
+      render();
+      alert("匯入完成！");
+    }catch(err){ alert("匯入失敗，檔案格式不正確：" + err.message); }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+
+render();
+</script>
+</body>
+</html>
