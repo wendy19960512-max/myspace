@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>今日烘焙手帳</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#d9c29c;--paper2:#e9d9ba;--ink:#2a1b15;--orange:#e4572a;--green:#6b8662;--blue:#8fa3b8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#2a211c;--paper2:#382c25;--ink:#efe1c8;--orange:#f0703a;--green:#8aa882;--blue:#7f93a8}}
+:root[data-theme="dark"]{--paper:#2a211c;--paper2:#382c25;--ink:#efe1c8;--orange:#f0703a;--green:#8aa882;--blue:#7f93a8}
+*{box-sizing:border-box}
+html,body{background-color:var(--paper)}
+body{margin:0;color:var(--ink);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;font-weight:500;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .12 0 0 0 0 .08 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+svg{fill:currentColor}.p{fill:var(--paper)}.st{fill:none;stroke:var(--paper);stroke-width:2.6;stroke-linecap:round}.or{fill:var(--orange)}.bl{fill:var(--blue)}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 40px}
+.strip{height:20px;margin:0 -16px;background:radial-gradient(var(--blue) 3px,transparent 3.6px) 0 0/16px 16px,var(--ink)}
+header{padding:16px 0 6px}
+.band{background:var(--ink);color:var(--paper);font-family:"Archivo Black","Impact",sans-serif;font-size:clamp(34px,10vw,64px);line-height:1;padding:8px 12px;letter-spacing:1px}
+.hrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
+.hrow h1{margin:0;font-size:30px;font-weight:900;line-height:1.15}
+.sub{font-size:12px;margin-top:4px;opacity:.8}
+.deco{display:flex;gap:6px}.deco svg{width:42px;height:42px}
+.tabs{display:flex;gap:8px;margin:14px 0 4px}
+.tab{flex:1;border:3px solid var(--ink);background:transparent;color:var(--ink);font:inherit;font-weight:900;padding:9px;cursor:pointer;border-radius:4px}
+.tab.on{background:var(--ink);color:var(--paper)}
+h2{font-size:17px;font-weight:900;margin:26px 0 12px;display:flex;align-items:center;gap:8px;border-bottom:3px solid var(--ink);padding-bottom:6px}
+h2 span.no{background:var(--ink);color:var(--paper);min-width:26px;height:26px;display:inline-grid;place-items:center;font-size:13px;font-family:"Archivo Black",sans-serif;border-radius:3px}
+.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px}
+.cat{border:3px solid var(--ink);background:var(--paper2);border-radius:4px;padding:12px 6px 10px;text-align:center;cursor:pointer;font:inherit;color:var(--ink)}
+.cat .e{display:grid;place-items:center;height:46px;margin-bottom:4px}.cat svg{width:44px;height:44px}.cat b{font-size:14px;font-weight:900}
+.cat .p{fill:var(--paper2)}.cat .st{stroke:var(--paper2)}
+.cat.on{background:var(--orange);box-shadow:5px 5px 0 var(--ink)}
+.cat.on .p{fill:var(--orange)}.cat.on .st{stroke:var(--orange)}
+.card{background:var(--paper2);border:3px solid var(--ink);border-radius:4px;padding:16px}
+.qty{display:flex;align-items:center;justify-content:center;gap:16px}
+.qty button{width:46px;height:46px;border-radius:4px;border:3px solid var(--ink);background:var(--green);color:var(--ink);font-size:24px;font-weight:900;cursor:pointer;font-family:inherit}
+.qty button:active{transform:translate(2px,2px)}
+.qty .n{font-family:"Archivo Black","Noto Sans TC",sans-serif;font-size:38px;min-width:130px;text-align:center}
+.hint{display:block;text-align:center;font-size:12px;margin-top:8px;opacity:.8}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.tag{background:var(--ink);color:var(--paper);border-radius:3px;padding:3px 10px;font-size:12px;font-weight:700}
+.sw{display:flex;justify-content:flex-end;font-size:12px;gap:6px;margin-bottom:4px}
+ul{list-style:none;margin:0;padding:0}
+.ing{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:2px dotted var(--ink);cursor:pointer}
+.ing:last-child{border:none}
+.box{width:22px;height:22px;border:3px solid var(--ink);border-radius:3px;flex:none;display:grid;place-items:center;font-size:13px;font-weight:900}
+.ing.done .box{background:var(--orange)}
+.ing.done .nm{text-decoration:line-through;opacity:.5}
+.nm{flex:1;font-weight:700}.nm i{display:block;font-style:normal;font-size:11px;font-weight:500;opacity:.7}
+.amt{font-family:"Archivo Black","Noto Sans TC",sans-serif;white-space:nowrap}.pct{font-size:12px;width:52px;text-align:right;opacity:.7}
+.total{margin-top:8px;text-align:right;font-size:13px;opacity:.8}
+ol{margin:0;padding-left:22px;line-height:1.9;font-size:14px}
+.tips{display:grid;gap:8px}
+.tip{background:var(--blue);color:var(--ink);border:3px solid var(--ink);border-radius:4px;padding:8px 12px;font-size:13px;line-height:1.7;font-weight:700}
+.reset{background:none;border:none;color:var(--ink);cursor:pointer;font:inherit;font-size:12px;text-decoration:underline}
+table{width:100%;border-collapse:collapse;font-size:13px}.scroll{overflow-x:auto}
+th{background:var(--ink);color:var(--paper);text-align:left;padding:8px;white-space:nowrap}
+td{padding:8px;border-bottom:2px dotted var(--ink);vertical-align:top}
+.know{display:grid;gap:10px}
+.k{background:var(--paper2);border:3px solid var(--ink);border-radius:4px;padding:10px 14px;font-size:13px;line-height:1.75}
+.k b{background:var(--orange);padding:0 8px;font-size:14px;font-weight:900}.k p{margin:6px 0 0}
+.note{font-size:12px;margin-top:8px;line-height:1.7;opacity:.8}
+footer{text-align:center;font-size:12px;margin-top:30px;font-weight:700;letter-spacing:1px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="strip"></div>
+<header><div class="band">TODAY'S BAKE</div><div class="hrow"><div><h1>今日烘焙手帳</h1><div class="sub">選擇品項・設定份量・自動換算材料</div></div><div class="deco"><svg viewBox="0 0 48 48"><path d="M24 2l4 14 12-8-8 12 14 4-14 4 8 12-12-8-4 14-4-14-12 8 8-12-14-4 14-4-8-12 12 8z"/><circle class="p" cx="24" cy="24" r="3"/></svg><svg viewBox="0 0 48 48"><path d="M5 32c0-13 8-21 19-21s19 8 19 21c0 5-3 7-7 7H12c-4 0-7-2-7-7z"/><circle class="p" cx="18" cy="26" r="2.6"/><circle class="p" cx="30" cy="26" r="2.6"/><path class="st" d="M20 33q4 3 8 0"/></svg><svg viewBox="0 0 48 48"><circle class="or" cx="24" cy="13" r="10"/><circle class="or" cx="24" cy="35" r="10"/><circle class="or" cx="13" cy="24" r="10"/><circle class="or" cx="35" cy="24" r="10"/><circle class="p" cx="24" cy="24" r="3.5"/></svg></div></div></header>
+<div class="tabs"><button class="tab on" data-t="make">今日製作</button><button class="tab" data-t="learn">烘焙知識</button></div>
+
+<section id="make">
+<h2><span class="no">1</span>今天想做什麼呢？</h2>
+<div class="cats" id="cats"></div>
+<h2><span class="no">2</span>要做多少呢？</h2>
+<div class="card"><div class="qty"><button id="minus" aria-label="減少">−</button><div class="n" id="n"></div><button id="plus" aria-label="增加">＋</button></div><span class="hint" id="unit"></span></div>
+<h2><span class="no">3</span>材料清單 <span style="color:var(--sub);font-weight:400;font-size:12px">（點一下打勾 ✓）</span></h2>
+<div class="card">
+<div class="meta" id="meta"></div>
+<div class="sw" id="pctRow"><label><input type="checkbox" id="pctOn"> 顯示烘焙百分比</label></div>
+<ul id="ings"></ul>
+<div class="total" id="total"></div>
+<div style="text-align:right"><button class="reset" id="reset">清除打勾</button></div>
+</div>
+<h2><span class="no">4</span>製作流程</h2>
+<div class="card"><ol id="steps"></ol></div>
+<h2><span class="no">5</span>小撇步</h2>
+<div class="tips" id="tips"></div>
+</section>
+
+<section id="learn" hidden>
+<h2><span class="no">A</span>建議烘烤時間</h2>
+<div class="card scroll"><table>
+<tr><th>品項</th><th>溫度</th><th>時間</th><th>熟了的判斷</th></tr>
+<tr><td>酸種麵包（約 900g）</td><td>250°C 入爐，降至 230°C</td><td>蓋鍋 20 分＋開蓋 20–25 分</td><td>深金褐色，敲底部聲音空空</td></tr>
+<tr><td>歐式麵包（約 850g）</td><td>240°C＋蒸氣</td><td>25–30 分</td><td>金黃脆皮，底部敲起來空心</td></tr>
+<tr><td>佛卡夏（20×30cm）</td><td>220°C</td><td>20–25 分</td><td>表面金黃，底部也上色</td></tr>
+<tr><td>皮塔餅</td><td>250°C（烤盤預熱）</td><td>3–4 分</td><td>整片鼓起，輕微上色</td></tr>
+<tr><td>巧克力蛋糕 6 吋</td><td>170°C</td><td>28–35 分</td><td>竹籤帶一點濕潤麵糊</td></tr>
+<tr><td>巧克力杯子蛋糕</td><td>170°C</td><td>18–22 分</td><td>表面微裂，輕按會回彈</td></tr>
+<tr><td>巧克力蛋糕 8 吋</td><td>170°C</td><td>35–42 分</td><td>竹籤帶一點濕潤麵糊</td></tr>
+</table>
+<p class="note">時間會隨麵團大小與烤箱個性而不同：麵團越小越快，每 250g 麵粉量約差 3–5 分鐘。建議開始前 5 分鐘就先看一眼上色。</p></div>
+
+<h2><span class="no">B</span>麵包：材料比例如何影響成品</h2>
+<div class="know">
+<div class="k"><b>水（含水量）</b><p>50–60% 偏硬、組織細密（皮塔、貝果）；65–70% 為標準麵包；75–85% 氣孔大、口感濕潤（酸種、佛卡夏），但麵團黏、不易整形。</p></div>
+<div class="k"><b>鹽（約 1.8–2.2%）</b><p>太少：味道平淡、發酵過快、麵團軟塌；太多：抑制酵母、發酵慢、成品偏鹹且體積小。</p></div>
+<div class="k"><b>酵母／酸種</b><p>酵母越多發酵越快，但風味較淡；用量少、時間長（或冷藏）風味更香。酸種比例高（20–30%）發酵快、更酸；低則更溫和。</p></div>
+<div class="k"><b>橄欖油／油脂</b><p>讓口感柔軟、延緩變硬、麵包芯更濕潤。佛卡夏的油多，所以外酥內軟；油太多會削弱麵筋。</p></div>
+<div class="k"><b>糖</b><p>少量糖（1–3%）幫助上色與柔軟；過多會拖慢發酵並容易烤焦。</p></div>
+<div class="k"><b>麵粉種類</b><p>高筋麵粉筋性強、可吃更多水、口感有嚼勁；加入全麥會讓風味更豐富，但需要更多水，體積會稍小。</p></div>
+</div>
+
+<h2><span class="no">C</span>蛋糕：材料比例如何影響成品</h2>
+<div class="know">
+<div class="k"><b>雞蛋</b><p>蛋越多越濕潤、蛋香與膨度好；蛋白提供結構，蛋黃提供濃郁與柔軟。</p></div>
+<div class="k"><b>奶油</b><p>多：更香更濕潤；少：偏乾、偏海綿感。與巧克力一起時，奶油會讓質地更偏濃密。</p></div>
+<div class="k"><b>麵粉</b><p>越多越有結構、蛋糕體越扎實；越少越濕潤、偏布朗尼般的濃密口感。攪拌過度會出筋變硬。</p></div>
+<div class="k"><b>糖</b><p>不只是甜度：保水、柔軟、幫助上色。糖太少會偏乾、偏硬、顏色淡；太多則塌陷、太甜。</p></div>
+<div class="k"><b>巧克力</b><p>越多越濃郁、越像生巧克力蛋糕；可可含量高則更苦、更乾，需搭配糖與油脂平衡。</p></div>
+<div class="k"><b>你的配方特色</b><p>這份配方（3 蛋、50g 奶油、40g 低筋麵粉、30g 糖、100g 巧克力）麵粉與糖都很少，巧克力與蛋是主角，成品會偏濃郁、濕潤，接近半熟的巧克力蛋糕，所以出爐時竹籤帶一點濕潤麵糊最好。</p></div>
+</div>
+</section>
+<footer>HAPPY BAKING ✦ 慢慢做，麵團會回應你的</footer>
+</div>
+
+<script>
+const SV={
+sour:'<svg viewBox="0 0 48 48"><path d="M5 30c0-12 8-19 19-19s19 7 19 19c0 5-3 7-7 7H12c-4 0-7-2-7-7z"/><path class="st" d="M16 19l5 9M24 16l3 11M32 19l-1 9"/></svg>',
+euro:'<svg viewBox="0 0 48 48"><g transform="rotate(-18 24 24)"><rect x="3" y="16" width="42" height="16" rx="8"/><path class="st" d="M13 28l3-8M22 28l3-8M31 28l3-8"/></g></svg>',
+foc:'<svg viewBox="0 0 48 48"><rect x="4" y="12" width="40" height="25" rx="9"/><g class="p"><circle cx="14" cy="21" r="2.4"/><circle cx="24" cy="19" r="2.4"/><circle cx="34" cy="22" r="2.4"/><circle cx="19" cy="30" r="2.4"/><circle cx="30" cy="30" r="2.4"/></g></svg>',
+pita:'<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="19"/><path class="st" d="M10 24c3-9 25-9 28 0" stroke-dasharray="0.1 5"/><g class="p"><circle cx="17" cy="31" r="1.8"/><circle cx="28" cy="33" r="1.8"/><circle cx="33" cy="27" r="1.8"/></g></svg>',
+choc:'<svg viewBox="0 0 48 48"><rect x="6" y="22" width="36" height="19" rx="4"/><path class="st" d="M6 29q4.5 5 9 0t9 0 9 0 9 0"/><rect x="22.5" y="11" width="3" height="9"/><circle class="or" cx="24" cy="8" r="3"/></svg>'};
+const B=(w,y,s,o,t)=>({w,y,s,o,t});
+const R={
+sour:{e:SV.sour,n:"酸種麵包",mode:"flour",u:"麵粉量",time:"發酵 18–24 小時",bake:"烘烤約 40–45 分",temp:"250→230°C",
+ ing:[["高筋麵粉",90,"flour"],["全麥麵粉",10,"flour"],["水",70],["活躍酸種（100% 含水）",20,"starter"],["鹽",2]],
+ steps:["酸種餵養：烘焙前 4–8 小時餵種，漲到 2–3 倍高。","自解：麵粉與水混合，靜置 30–60 分鐘。","加入酸種與鹽揉勻，基礎發酵 4–6 小時（26°C），每 30–45 分鐘折疊一次，共 3–4 次。","預整形、靜置 20–30 分鐘，再最後整形放入發酵籃。","冷藏 8–12 小時（隔夜）。","鑄鐵鍋預熱 250°C，放入麵團劃刀，加蓋烤 20 分鐘，降至 230°C 去蓋再烤 20–25 分鐘。","完全放涼再切（至少 1 小時）。"],
+ tips:["酸種在水中會浮起來，就是可以使用的好狀態。","表皮顏色太淺：再多烤 5 分鐘，風味更香。","隔夜冷藏讓劃刀更漂亮，風味也更豐富。"]},
+euro:{e:SV.euro,n:"歐式麵包",mode:"flour",u:"麵粉量",time:"發酵約 3–4 小時",bake:"烘烤約 25–30 分",temp:"240°C",
+ ing:[["高筋麵粉",100,"flour"],["水",70],["鹽",2],["速發酵母",0.4]],
+ steps:["所有材料混合，揉至無乾粉並有筋性。","基礎發酵 1.5–2 小時（26–28°C），中間折疊 2 次。","分割、預整形，鬆弛 20 分鐘。","整形後最後發酵 45–60 分鐘。","烤箱預熱 240°C 並放蒸氣盤，入爐劃刀，噴水。","烤 25–30 分鐘至金黃，出爐放涼架。"],
+ tips:["蒸氣是脆皮的關鍵：入爐前後都要噴水。","低酵母＋長時間發酵＝更有麥香。","想更有風味可前一晚先做 poolish（水粉各 20%＋微量酵母）。"]},
+foc:{e:SV.foc,n:"佛卡夏",mode:"flour",u:"麵粉量",time:"發酵約 2.5–3 小時",bake:"烘烤約 20–25 分",temp:"220°C",
+ ing:[["高筋麵粉",100,"flour"],["水",80],["鹽",2],["速發酵母",1],["橄欖油（麵團內）",10],["橄欖油（表面）",7],["迷迭香",0.7],["海鹽片",0.7]],
+ steps:["麵粉、水、鹽、酵母、橄欖油混合成濕潤麵團（80% 含水）。","每 30 分鐘折疊一次，共 3 次，總發酵約 1.5–2 小時。","烤盤抹油，麵團輕輕推開鋪平，靜置 30 分鐘。","用手指戳出深洞，淋橄欖油，撒迷迭香與海鹽。","220°C 烤 20–25 分鐘至金黃。"],
+ tips:["手指要沾油再戳洞，才不會黏手。","在洞裡淋上鹽水（水＋鹽＋油）更濕潤。","可加番茄、橄欖、洋蔥變化口味。"]},
+pita:{e:SV.pita,n:"皮塔餅",mode:"flour",u:"麵粉量",time:"發酵約 1 小時",bake:"烘烤約 3–4 分",temp:"250°C",
+ ing:[["中筋或高筋麵粉",100,"flour"],["水",60],["速發酵母",1.2],["鹽",1.6],["橄欖油",4],["糖",1.2]],
+ steps:["材料全部揉成光滑麵團。","發酵約 1 小時至兩倍大。","分割成每份約 100g，滾圓鬆弛 10 分鐘。","擀成約 5mm 厚的圓片，不要太薄。","烤盤預熱至 250°C，放入烤 3–4 分鐘，膨起即可。","出爐用濕布蓋住保持柔軟。"],
+ tips:["烤盤要預熱到很燙，才容易鼓起來。","擀的厚度要均勻，才能形成空心口袋。","也可以用平底鍋乾煎，蓋上鍋蓋。"]},
+choc:{e:SV.choc,n:"巧克力蛋糕",mode:"portion",u:"份（每份＝6 吋）",time:"準備約 30 分鐘",bake:"烘烤約 28–35 分",temp:"170°C",
+ ing:[["黑巧克力",100,"g"],["無鹽奶油",50,"g"],["雞蛋",3,"顆"],["細砂糖",30,"g"],["低筋麵粉",40,"g"]],
+ steps:["烤箱預熱 170°C，6 吋模具鋪烘焙紙。","巧克力與奶油隔水融化，拌勻，稍微放涼。","蛋與糖打散至稍微泛白，倒入巧克力糊拌勻。","過篩低筋麵粉，輕輕拌勻不要過度攪拌。","倒入模具，輕敲排氣。","烤 28–35 分鐘，竹籤沾少許濕潤麵糊即可。","放涼後脫模，可篩上糖粉。"],
+ tips:["巧克力溫度別太高（約 40–45°C），避免把蛋煮熟。","烤過頭會變乾，中心有一點點濕潤最好吃。","冷藏一晚後口感更濃郁綿密。"]}
+};
+let cur="sour",flour=500,portion=1,done=new Set();
+const $=id=>document.getElementById(id);
+const g=v=>v>=10?Math.round(v):Math.round(v*10)/10;
+function render(){
+ const r=R[cur],isF=r.mode==="flour";
+ $("cats").innerHTML=Object.entries(R).map(([k,v])=>`<button class="cat ${k===cur?'on':''}" data-k="${k}"><span class="e">${v.e}</span><b>${v.n}</b></button>`).join("");
+ $("n").textContent=isF?flour+" g":portion+" 份";
+ $("unit").textContent=isF?"麵粉量・250g 起，一般 500g（每次 ±50g）":"1 份 ＝ 3 蛋・50g 奶油・40g 低筋麵粉・30g 糖・100g 巧克力";
+ $("pctRow").hidden=!isF;
+ $("meta").innerHTML=`<span class="tag">${r.time}</span><span class="tag">${r.temp}</span><span class="tag">${r.bake}</span>`;
+ let tot=0,show=isF&&$("pctOn").checked;
+ $("ings").innerHTML=r.ing.map((i,x)=>{
+  let a,t;
+  if(isF){const v=flour*i[1]/100;tot+=v;a=g(v)+" g";t=show?`<span class="pct">${i[1]}%</span>`:""}
+  else{const v=i[1]*portion;a=v+" "+i[2];if(i[2]==="g")tot+=v;t=""}
+  const note=i[2]==="starter"?"<i>酸種本身含麵粉與水，約等量</i>":(i[2]==="flour"?"<i>麵粉合計 100%</i>":"");
+  return `<li class="ing ${done.has(cur+x)?'done':''}" data-i="${x}"><span class="box">${done.has(cur+x)?'✓':''}</span><span class="nm">${i[0]}${note}</span>${t}<span class="amt">${a}</span></li>`}).join("");
+ $("total").textContent="材料總重約 "+Math.round(tot)+" g"+(isF?"（不含蛋糕以外裝飾）":"（蛋另計）");
+ $("steps").innerHTML=r.steps.map(s=>`<li>${s}</li>`).join("");
+ $("tips").innerHTML=r.tips.map(t=>`<div class="tip">✦ ${t}</div>`).join("");
+}
+document.addEventListener("click",e=>{
+ const t=e.target.closest(".tab");if(t){document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b===t));$("make").hidden=t.dataset.t!=="make";$("learn").hidden=t.dataset.t!=="learn";return}
+ const c=e.target.closest(".cat");if(c){cur=c.dataset.k;render();return}
+ const i=e.target.closest(".ing");if(i){const k=cur+i.dataset.i;done.has(k)?done.delete(k):done.add(k);render()}
+});
+$("plus").onclick=()=>{R[cur].mode==="flour"?flour=Math.min(2000,flour+50):portion=Math.min(6,portion+1);render()};
+$("minus").onclick=()=>{R[cur].mode==="flour"?flour=Math.max(250,flour-50):portion=Math.max(1,portion-1);render()};
+$("pctOn").onchange=render;
+$("reset").onclick=()=>{done.clear();render()};
+render();
+</script>
+</body>
+</html>
