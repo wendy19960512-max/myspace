@@ -1,0 +1,159 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>鄭琬融｜個人資料儀表板</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500&family=DotGothic16&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#f4f5f1;--card:#fff;--ink:#2d3142;--mute:#6b7088;--line:#d5d8cf;--acc:#5d6aa3;--hl:#fbf5d6;--th:#e8eaf4;--thc:#3b4378;--on:#f4f5f1}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171826;--card:#202233;--ink:#e8e9f5;--mute:#9a9db8;--line:#363950;--acc:#8f98d6;--hl:#4a4320;--th:#2a2d49;--thc:#c9cdf0;--on:#171826}}
+:root[data-theme="dark"]{--bg:#171826;--card:#202233;--ink:#e8e9f5;--mute:#9a9db8;--line:#363950;--acc:#8f98d6;--hl:#4a4320;--th:#2a2d49;--thc:#c9cdf0;--on:#171826}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:11pt/1.5 "Noto Sans TC","Microsoft JhengHei",sans-serif}
+.px{font-family:"DotGothic16","Noto Sans TC",monospace}
+.wrap{max-width:1280px;margin:0 auto;padding:32px 24px 60px;display:flex;gap:40px;align-items:flex-start}
+aside{width:296px;flex:none;background:#ebece6;color:#2d3142;border:1.5px solid #2d3142;padding:22px 22px 18px;display:flex;flex-direction:column;position:sticky;top:20px}
+aside .rule{height:1.5px;background:#2d3142;margin:16px 0}
+.chip{border:1.5px solid #2d3142;border-radius:12px;padding:0 10px;font-size:13px}
+.badge{border:1.5px solid #2d3142;border-radius:50%;width:132px;height:62px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:14px;line-height:1.2}
+.name{font:900 46px/1.1 "Noto Serif TC","Songti TC",serif;letter-spacing:.04em}
+aside img{display:block;margin:18px auto 8px;image-rendering:pixelated}
+main{flex:1;min-width:0}
+.head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--ink);padding-bottom:16px;gap:16px}
+.en{font-size:14px;letter-spacing:.14em;color:var(--mute)}
+h1{margin:4px 0 0;font:900 35pt/1.15 "Noto Serif TC","Songti TC",serif;letter-spacing:.1em}
+.vert{writing-mode:vertical-rl;font:15px "Noto Serif TC",serif;letter-spacing:.3em;color:var(--mute);height:110px}
+.tabs{display:flex;gap:8px;overflow-x:auto;margin:18px 0 0;padding-bottom:4px}
+.tab{height:44px;padding:0 18px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);font:inherit;border-radius:22px;cursor:pointer;white-space:nowrap}
+.tab i{font:normal 13px "DotGothic16",monospace;letter-spacing:.06em;margin-right:8px}
+.tab:hover{background:var(--hl)}.tab.on{background:var(--ink);color:var(--on)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 14px;align-items:center}
+.bar input[type=search]{flex:1;min-width:160px}
+button.b,.bar input,td textarea{font:inherit;color:var(--ink)}
+button.b{height:44px;border:1.5px solid var(--ink);background:transparent;padding:0 18px;border-radius:8px;cursor:pointer}
+button.b:hover{background:var(--hl)}
+button.p{background:var(--acc);color:#fff;border-color:var(--ink);font-weight:500}button.p:hover{background:var(--acc);filter:brightness(1.08)}
+.bar input{height:44px;border:1.5px solid var(--ink);background:var(--card);padding:0 14px;border-radius:8px}
+.bar input:focus{outline:0;background:var(--hl)}
+.card{background:var(--card);border:1.5px solid var(--ink);overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+th{background:var(--th);color:var(--thc);font-weight:500;text-align:left;padding:11px 10px;position:sticky;top:0;border-bottom:1.5px solid var(--ink)}
+td{border-top:1px solid var(--line);padding:2px;vertical-align:top}
+tr[data-i]:hover td{background:rgba(143,152,214,.08)}
+td textarea{width:100%;border:1.5px solid transparent;background:transparent;resize:none;padding:7px 9px;border-radius:6px;overflow:hidden;display:block}
+td textarea:hover{border-color:var(--line)}td textarea:focus{outline:0;border-color:var(--acc);background:var(--hl)}
+td.n{font:13px "DotGothic16",monospace;color:var(--mute);width:48px;text-align:center;padding-top:10px}
+td.x{width:48px;text-align:center}
+.del{width:40px;height:40px;border:0;background:transparent;color:var(--mute);font-size:20px;cursor:pointer;border-radius:50%}.del:hover{color:#fff;background:#9a4a4a}
+.log td{padding:8px 10px}.log td:first-child{white-space:nowrap;color:var(--mute);width:160px;font-family:"DotGothic16","Noto Sans TC",monospace}
+.empty{padding:30px;text-align:center;color:var(--mute)}
+#msg{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--on);padding:9px 16px;border-radius:8px;opacity:0;transition:.25s;pointer-events:none}
+#msg.on{opacity:1}
+.hint{color:var(--mute);font-size:10pt;margin-top:14px}
+@media (max-width:900px){.wrap{flex-direction:column;padding:16px}aside{width:100%;position:static}.vert{display:none}h1{font-size:28pt}}
+</style></head><body><div class="wrap">
+<aside>
+<div class="px" style="font-size:17px;letter-spacing:.08em">PERSONAL ARCHIVE</div>
+<div class="px" style="display:flex;gap:6px;margin-top:10px"><span class="chip">2013</span><span class="chip" style="background:#2d3142;color:#ebece6">2026</span></div>
+<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:18px"><div class="badge px">WRITER'S<br>ARCHIVE</div><svg width="52" height="52" viewBox="0 0 52 52" fill="none" stroke="#2d3142" stroke-width="3" stroke-linecap="square" aria-hidden="true"><path d="M44 8 L10 42 M10 24 V42 H28"/></svg></div>
+<div class="rule"></div>
+<div class="name">鄭琬融</div>
+<div class="px" style="font-size:15px;margin-top:8px;line-height:1.4">Poems / Fiction / Essays<br>Awards &amp; Publications</div>
+<img src="data:image/gif;base64,R0lGODlhyACWAIEAAOvs5i0xQgAAAAAAACH/C0MyUEFfR0lGAQAA/wAAFn5qdW1iAAAAHmp1bWRjMnBhABEAEIAAAKoAOJtxA2MycGEAAAAWWGp1bWIAAABHanVtZGMybWEAEQAQgAAAqgA4m3EDdXJuOmMycGE6YTg2ZjJhOTEtYWE0OC00OTk4LWIxOTctOGJkYzQyNjM3YTkzAAAAA5NqdW1iAAAAKWp1bWRjMmFzABEAEIAAAKoAOJtxA2MycGEuYXNzZXJ0aW9ucwAAAAC4anVtYgAAAERqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmluZ3JlZGllbnQudjMAAAAAGGMyc2gymJomwTD93SyGTgISmM/xAAAAbGNib3KjaWRjOv9mb3JtYXRpaW1hZ2UvZ2lmamluc3RhbmNlSUR4LHhtcDppaWQ6NWE0NmY5MmYtOTQzOS00ZDJmLThmYzAtNmMyYWI1YjMyYjAzbHJlbGF0aW9uc2hpcGhwYXJlbnRPZgAAAeJqdW1iAAAAQWp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuYWN0aW9ucy52MgAAAAAYYzJzaJnmE0nGDg6VroVCs/AJSAkAAAGZY2JvcqJnYWN0aW9uc4KiZmFjdGlvbmtjMnBhLm9wZW5lZGpwYXJhbWV0ZXJzoWtpbmdyZWRpZW50c4GiY3VybHgtc2VsZiNqdW1iZj1jMnBhLmH/c3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCDM+VdBBOpQtVvEHOTqrS8I4aiE6N/Xm+2HKaDSOR8YpKRmYWN0aW9ueB1jb20uYW50aHJvcGljLmNsYXVkZS5wcm92aWRlZGpwYXJhbWV0ZXJzoXgfY29tLmFudGhyb3BpYy5vcmlnaW4tY29uZmlkZW5jZWd1bmtub3dua2Rlc2NyaXB0aW9ueGZDbGF1ZGUgcHJvdmlkZWQgdGhpcyBmaWxlIGF0IHRoZSByZXF1ZXN0IG9mIGEgdXNlciBhbmQgbWF5IGhhdmUgY3JlYXRlZCBvciBtb2RpZmll/2QgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaKAOppH9UToFlk9PXbpSu2kAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRNAAAAAAAAAAAAAAAAAGRoYXNoWCBykEmt0ZnM+5M+CNVvcIB6U/8wk+0IExWavwkN8cAU+2RuYW1lbmp1bWJmIG1hbmlmZXN0amV4Y2x1c2lvbnOBomVzdGFydP8YGWZsZW5ndGgZFqQAAAI+anVtYgAAACdqdW1kYzJjbAARABCAAACqADibcQNjMnBhLmNsYWltLnYyAAAAAg9jYm9ypWNhbGdmc2hhMjU2aXNpZ25hdHVyZXhNc2VsZiNqdW1iZj0vYzJwYS91cm46YzJwYTphODZmMmE5MS1hYTQ4LTQ5OTgtYjE5Ny04YmRjNDI2MzdhOTMvYzJwYS5zaWduYXR1cmVqaW5zdGFuY2VJRHgseG1wOmlpZDphZmNiYWY5NC00MjQ2LTQ4N2EtYmM5ZS05YzBkNTM4ZDlmODVyY3JlYXRlZF9hc3NlcnRpb25zg6JjdXJseC1zZWz/ZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5pbmdyZWRpZW50LnYzZGhhc2hYIMz5V0EE6lC1W8Qc5OqtLwjhqITo39eb7YcpoNI5HxikomN1cmx4KnNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuYWN0aW9ucy52MmRoYXNoWCDLEXko7TJtxnloOshts2hxUP5ch4lmofFfDYQMzB9yMqJjdXJseClzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmhhc2guZGF0YWRoYXNoWCCPrDSMQb97iwqc/Tq6fDq6JaRjbWP2iJ2nBl5wN5dE/wh0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudP9pYWxzIFJvb3QgQ0EwHhcNMjYwODA3MTg0MzU2WhcNMjgwODA2MTk0MzU2WjBEMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEpMCcGA1UEAxMgQW50aHJvcGljIENsYXVkZSBDb250ZW50IFNpZ25pbmcwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASYegpry1AYBRTVNL1CpTlbROnY3dey+UrsF9C3phYrATN3ZHf93Mo8RQN0KOUuOn19P4oWNFWe5n2/She9N7eTo1gwVjAOBgNVHQ8BAf8EBAMCB4AwFQYDVR0lBA4wDAYKKwYBBAGD6F4CATAMBgNVHRP/AQH/BAIwADAfBgNVHSMEGDAWgBTOUeIEgU5kWyP448TPmj6cwddcwjAKBggqhkjOPQQDAwNnADBkAjAxcx0UngF60stVjs5G4T2eiptsBk5mf9oCtfJPAUBl8qs/PEXa8+gk1/X5QJ2DVcYCMHBfXN31YapiSqYvlIWrDVDJKOvXMl+kkz37Wt0PBI8sw486Mq6JeOhT+lRR4b1HCaFjcGFkWQ2eAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA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" alt="像素插圖：魚、鬼、奶油輪流出現" width="200" height="150">
+<div style="font-size:12px;color:#5a5f78;text-align:center;line-height:1.5">魚 ／ 鬼 ／ 奶油<br>《一些流浪的魚》《我與我的幽靈共處一室》《醒來，奶油般地》</div>
+<div style="display:flex;justify-content:center;gap:18px;margin-top:14px"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="#2d3142" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M22 4 L34 22 L26 36 H18 L10 22 Z"/><path d="M22 4 V26"/><circle cx="22" cy="29" r="2.4"/><path d="M14 40 H30"/></svg><svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="#2d3142" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M5 9 C12 6 18 7 22 11 C26 7 32 6 39 9 V34 C32 31 26 32 22 36 C18 32 12 31 5 34 Z"/><path d="M22 11 V36"/><path d="M10 15 C13 14 16 14 18 15 M10 21 C13 20 16 20 18 21 M26 15 C28 14 31 14 34 15"/></svg></div>
+<div class="rule" style="margin-bottom:12px"></div>
+<div style="display:flex;align-items:center;justify-content:space-between">
+<div><svg width="109" height="26" fill="#2d3142" aria-hidden="true"><rect x="0" width="2" height="26"/><rect x="5" width="3" height="26"/><rect x="11" width="1" height="26"/><rect x="16" width="3" height="26"/><rect x="22" width="2" height="26"/><rect x="27" width="1" height="26"/><rect x="33" width="2" height="26"/><rect x="38" width="1" height="26"/><rect x="43" width="3" height="26"/><rect x="49" width="2" height="26"/><rect x="55" width="1" height="26"/><rect x="59" width="3" height="26"/><rect x="65" width="2" height="26"/><rect x="70" width="2" height="26"/><rect x="77" width="1" height="26"/><rect x="81" width="2" height="26"/><rect x="86" width="3" height="26"/><rect x="93" width="1" height="26"/><rect x="97" width="2" height="26"/><rect x="104" width="1" height="26"/></svg><div class="px" id="codes" style="font-size:11px;margin-top:3px;letter-spacing:.08em"></div></div>
+<div class="px" style="font-size:12px;text-align:right;line-height:1.3">TOTAL<br><span id="tot"></span> ITEMS</div>
+</div>
+</aside>
+<main>
+<div class="head"><div><div class="en px" id="en"></div><h1 id="ttl"></h1></div><div class="vert" id="vert"></div></div>
+<div class="tabs" id="tabs"></div>
+<div class="bar" id="bar"></div>
+<div class="card" id="card"></div>
+<p class="hint">編輯內容自動儲存於此瀏覽器；換裝置或清除瀏覽資料前，請先按「匯出 Excel」備份。</p>
+</main></div><div id="msg"></div>
+<input type="file" id="file" accept=".xlsx,.xls,.csv" hidden>
+<script>
+const SEED={"sheets": {"學歷與訓練": {"h": ["學校或機構名稱", "系所（組別或主修）", "在校或修業年度", "學位或證書"], "rows": [["台北藝術大學", "文學跨域創作所", "2022 ~ 2025", "碩士 學位"], ["國立東華大學", "華文文學系", "2014 ~ 2019", "學士 學位"]]}, "專業經歷": {"h": ["服務單位", "職稱", "起訖日期"], "rows": [["高雄文學館", "講師", "2019-06 ~ 2022-08"], ["木馬文學", "編輯", "2019-05 ~ 2022-05"], ["蘆荻社區大學", "講師", "2024-09 ~ 2025-07"]]}, "作品紀錄": {"h": ["作品年度", "作品名稱"], "rows": [["2024-04", "醒來，奶油般地"], ["2021-07", "我與我的幽靈共處一室"], ["2016-12", "一些流浪的魚"]]}, "得獎紀錄": {"h": ["得獎年度", "得獎名稱"], "rows": [["2024-11", "《醒來，奶油般地》入圍2024年Openbook好書獎"], ["2023-11", "〈廢田，冷海，曠野中的白矢〉獲林榮三文學獎二獎"], ["2023-09", "第十七屆雲門流浪者計畫獲選人"], ["2023-07", "〈好好奇嫚用完了〉教育部文藝創作獎"], ["2022-10", "「2022臺灣文學獎」金典獎入圍決選"], ["2022-10", "國藝會創作補助《黑夜的篇》"], ["2022-10", "入選台灣文學基地「秋天駐村作家」"], ["2021-11", "2021Openbook好書獎 年度好書．入圍"], ["2020-07", "第七屆楊牧詩獎"], ["2019-12", "2019年華文朗讀節「創作明日之星」入選"], ["2019-10", "第十五屆林榮三文學獎 新詩獎佳作"], ["2019-09", "2019台北詩歌節「十五秒影像詩」佳作"], ["2019-06", "台積電青年文學獎童話詩徵選_優勝"], ["2018-11", "第39屆時報文學獎影視小說組入圍"], ["2018-05", "第十八屆奇萊文學獎 新詩獎 佳作"], ["2017-05", "第十七屆奇萊文學獎 新詩獎 第二名"], ["2017-05", "王禎和文學獎"], ["2015-05", "輕疫讀書會 ×19草文詩獎 入選獎"], ["2014-07", "第十一屆台積電青年學生文學獎 現代詩首獎"], ["2013-06", "第七屆南華文學獎 現代詩首獎"]]}, "展演與發表": {"h": ["年度", "展演或發表記錄"], "rows": [["2026-06~2026-06", "〈往前之途〉6.4刊於《自由副刊》"], ["2026-05~2026-05", "〈冷冷的細月下〉5.29刊於《自由副刊》"], ["2025-09~2025-09", "〈帶刺的注目──2019年諾貝爾文學獎得主彼得·漢德克〉刊於《閱讀的島: 友善書業合作社書店誌 20》"], ["2025-09~2026-09", "〈毀滅摸起來是什麼樣子〉《推理》293期 (2025/09)"], ["2025/8/29", "【聯合副刊】琅琅悅讀專訪刊登〈與AI共舞：專訪插畫家阿鄉與柳佳妘〉"], ["2025-06~2025-08", "〈一把槍枝的誕生〉小說刊登於《鹽分地帶》六月號、八月號"], ["2025-04~2025-04", "短篇小說〈我們從何處來？我們是誰？我們向何處去？〉刊於《自由副刊》"], ["2025-02~2025-02", "散文〈探訪黑暗的所在：重回「廣島」核爆點〉刊於《上下游副刊》"], ["2025-01~2025-01", "書評〈旅人的獨角──評《夢遊的犀牛》〉刊於《聯合副刊》"], ["2024-09~2025-09", "〈藍色的睡眠〉9.16刊於《自由副刊》"], ["2024-03~2024-03", "〈繩子的圓舞曲〉詩作3.1 刊於《自由副刊》"], ["2024-03~2024-03", "2024 後搖景像詩Cloud Music & Art Festival，平台朗讀者，3/16"], ["2024-02~2024-02", "台北國際書展「楊牧之夜」，朗讀者，2/24"], ["2024-02~2024-02", "詩作兩首〈Instan Cute〉、〈黑燕子的季節〉刊於《上下游副刊》2.12"], ["2024-02~2024-02", "「第一屆台北詩擂台大會」於紀州庵，演出者，2/3"], ["2023-12~2024-12", "〈古怪的姿勢〉詩作12.5 刊於《自由副刊》"], ["2023-09~2023-09", "話題》創作者的啟發之物：小叮噹、華沙皇家城堡畫作與駐村，鄧九雲X鄭琬融X汪正翔讀《夜裡的花香》"], ["2023-08~2023-08", "〈有喉嚨的生物〉刊於《聯合報副刊》2023.8.28"], ["2023-08~2023-08", "〈蕾雨中聚會〉刊於《好漫詩刊：PoemCAsT》2023.08.15"], ["2023-07~2023-07", "〈應在場的不在場〉刊於《自由副刊》7.24-25"], ["2023-07~2023-07", "詩作〈剝一些自由的皮〉刊於聯合報副刊 07.26"], ["2023-07~2023-07", "〈成為一道探索的光亮〉刊於《聯合文學》2023.7月號"], ["2023-06~2023-06", "〈蛇的三十夢〉刊於《鏡好語》一首詩的故事"], ["2023-06~2023-06", "訪談〈老闆，這杯草莓沙瓦怎麼沒加酒〉刊於《聯合文學》2023.6月號"], ["2023-05~2023-05", "詩作〈柏林的沸點〉刊於《自由副刊》"], ["2023-03~2023-03", "〈恐慌，還是恐慌〉、〈骷髏狀的人馬〉刊於字花線上刊物《別字》第62期"], ["2023-03~2023-03", "〈清泉〉刊於《聯合報副刊》23.3.28"], ["2023-03~2023-03", "詩作入選於《創世紀詩雜誌。214期春季號》台港澳1990世代精選"], ["2023-02~2023-02", "〈一切都在移動〉──刊登於《幼獅文藝》2月號/2023 第830期，未名書寫欄"], ["2023-01~2023-01", "〈詩的多腳獸：關於跨界的想像〉筆談刊登於印刻文學生活誌，曹馭博、鄭琬融、曾貴麟"], ["2022-12~2022-12", "〈收起臺備的鋼──記尖石〉聲音與詩發表於《鏡好語》"], ["2022-12~2022-12", "〈解渴的時間〉刊於《自由副刊》22.12.9"], ["2022-12~2022-12", "〈蛇的三十夢〉刊於《EVERYDAY OBJECT》年刊"], ["2022-11~2022-11", "〈為了十二秒〉短篇小說──刊於《鹽分地帶文學 11月號》2022 第101期"], ["2022-10~2022-10", "〈我的詩就放在口袋裡〉、〈黑夜的篇〉、〈風在吃食著〉三首影像詩於台北詩歌節「小地方不斷電讀詩馬拉松」發表"], ["2022-07~2022-07", "〈七月的盡頭〉聲音與詩發表於《鏡好語》"], ["2022-07~2022-10", "參與藝術家李紫彤的〈迎畫者計畫〉並展覽於國立臺灣美術館"], ["2022-06~2022-06", "〈夜行寧波西街〉、〈關於爐火的二三事〉刊於《創世紀詩刊》2022.06 夏季號"], ["2022-06~2022-06", "自由副刊〈風在吃食著〉"], ["2022-05~2022-05", "〈黑夜的篇〉刊於 鹽分地帶文學5月號/2022第98期"], ["2022-04~2022-04", "〈黑網放行的一日〉刊於《人間福報》04.01"], ["2022-01~2022-01", "《VERSE雜誌》刊登詩作〈海也未曾見過你〉"], ["2022-01~2022-01", "自由副刊散文刊登〈作客〉"], ["2021-11~2021-11", "台北詩歌節邀約，幼獅文藝刊登〈神像是否也有黏土腳？二〇二一台北詩歌節詩講座《對照記》側記〉"], ["2021-07~2021-07", "鹽分地帶文學雙月刊 2021七月號〈在腐爛的夜晚遇見你〉"], ["2021-07~2021-07", "作品〈洞並不是拿來填補的〉入選《貳零貳零 臺灣詩選》"], ["2021-02~2021-02", "自由副刊〈我們的火是黑的〉"], ["2021-01~2021-01", "鹽分地帶文學雙月刊 2021一月號〈無人區〉"], ["2021-01~2021-12", "幼獅文藝【心樂園】音樂專欄 3/6/9/12月號"], ["2020-08~2020-08", "自由副刊〈洞並不是拿來填補的〉"], ["2020-07~2020-07", "香港聲韻詩刊刊登〈我的願望在死〉"], ["2020-05~2020-05", "幼獅文藝【我的誕生日】專欄邀稿‑刊登〈五月的人〉"], ["2020-05~2020-05", "聯合文學刊登新詩三首"], ["2020-04~2020-04", "幼獅文藝新詩作品刊登〈浪行〉、〈教我推開一種雲霧的方法〉"], ["2020-02~2020-02", "聲音詩作品〈山下〉由好漫詩刊刊登"], ["2019-12~2019-12", "第十五屆林榮三文學獎 新詩獎佳作《她們翻越過界的邊界》作品刊登"], ["2019-09~2019-09", "幼獅文藝【林中小屋】專欄邀稿刊登_《恐懼的誕生》"], ["2019-06~2019-06", "第39屆時報文學獎影視小說組入圍刊登《利利》"], ["2019-06~2019-06", "幼獅文藝【走私者】專欄邀稿刊登_《與良善告別》"], ["2019-06~2019-06", "台積電青年文學獎童話詩徵選_優勝《和虎姑在夜裡一起舐手指》作品刊登"], ["2019-04~2019-04", "聯合報邀稿刊登【2018台積電文學之星】系列"], ["2018-10~2018-10", "明道文藝刊登詩作《我在風的後面》"], ["2018-04~2018-04", "聯合報邀稿刊登【2018台積電文學之星】系列"], ["2017-07~2017-07", "幼獅文藝【邊境．現場】邀稿刊登"], ["2016-06~2016-06", "人間福報副刊 詩作刊登（在詩閣裡療傷）"], ["2016-03~2016-03", "人間福報副刊 詩作刊登（詩兩首）"], ["2015-11~2015-11", "聯合文第373期 新人上場刊登"], ["2015-09~2015-09", "創世紀詩刊 184期刊登"], ["2014-04~2018-04", "幼獅文藝Youth Show143站 刊登"]]}}, "log": [["2026-10-02 00:00", "展演與發表", "修改", "〈帶刺的注目──2019年諾貝爾文學獎得主彼得·漢德克〉年度由 2026-09~2026-09 更正為 2025-09~2025-09"], ["2026-10-02 00:00", "展演與發表", "新增", "2025/8/29 【聯合副刊】琅琅悅讀專訪刊登〈與AI共舞：專訪插畫家阿鄉與柳佳妘〉"], ["2026-10-02 00:00", "展演與發表", "修改", "〈一把植枝的誕生〉更正為〈一把槍枝的誕生〉（《鹽分地帶》六月號、八月號）"]]};
+const KEY="zhengwr_dash_v1",LOG="修訂紀錄";
+let S=null;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!S||!S.sheets)S=JSON.parse(JSON.stringify(SEED));
+let cur=Object.keys(S.sheets)[0],q="";
+const $=id=>document.getElementById(id);
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const now=()=>{const d=new Date(),p=n=>String(n).padStart(2,"0");return`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`};
+const clip=(s,n=40)=>{s=String(s??"");return s.length>n?s.slice(0,n)+"…":s};
+function log(sheet,act,detail){S.log.unshift([now(),sheet,act,detail]);S.log=S.log.slice(0,1000);save()}
+function toast(t){const m=$("msg");m.textContent=t;m.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>m.classList.remove("on"),2200)}
+function grow(t){t.style.height="auto";t.style.height=t.scrollHeight+2+"px"}
+
+const EN={"學歷與訓練":"EDUCATION","專業經歷":"CAREER","作品紀錄":"WORKS","得獎紀錄":"AWARDS","展演與發表":"PUBLICATIONS","修訂紀錄":"LOG"};
+const pad=n=>String(n).padStart(2,"0");
+function render(){
+  $("ttl").textContent=cur;$("en").textContent="INDEX ／ "+(EN[cur]||"");
+  const cs=Object.values(S.sheets).map(v=>v.rows.length);$("codes").textContent=cs.map(pad).join(" ");$("tot").textContent=cs.reduce((a,b)=>a+b,0);
+  $("vert").textContent=cur===LOG?"修訂・紀錄":"二〇一三 — 二〇二六";
+  $("tabs").innerHTML=Object.entries(S.sheets).map(([k,v])=>`<button class="tab ${k===cur?"on":""}" data-t="${k}"><i>${pad(v.rows.length)}</i>${k}</button>`).join("")+`<button class="tab ${cur===LOG?"on":""}" data-t="${LOG}"><i>${pad(S.log.length)}</i>${LOG}</button>`;
+  document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{cur=b.dataset.t;q="";render()});
+  const isLog=cur===LOG;
+  $("bar").innerHTML=(isLog?"":`<input type="search" id="q" placeholder="搜尋本分頁…" value="${q.replace(/"/g,"&quot;")}"><button class="b p" id="add">＋ 新增一筆</button><button class="b" id="sort">依年度由新到舊排序</button>`)
+   +`<button class="b" id="exp">匯出 Excel</button><button class="b" id="imp">匯入 Excel</button><button class="b" id="rst">還原初始資料</button>`+(isLog?`<button class="b" id="clr">清空紀錄</button>`:"");
+  if(isLog){
+    $("card").innerHTML=S.log.length?`<table class="log"><tr><th>時間</th><th>分頁</th><th>動作</th><th>內容</th></tr>${S.log.map(r=>`<tr>${r.map(c=>`<td>${String(c).replace(/&/g,"&amp;").replace(/</g,"&lt;")}</td>`).join("")}</tr>`).join("")}</table>`:`<div class="empty">尚無紀錄</div>`;
+    $("clr").onclick=()=>{if(confirm("確定清空修訂紀錄？")){S.log=[];save();render()}};
+  }else{
+    const sh=S.sheets[cur];
+    $("card").innerHTML=`<table><tr><th>NO.</th>${sh.h.map(h=>`<th>${h}</th>`).join("")}<th></th></tr>${sh.rows.map((r,i)=>`<tr data-i="${i}"><td class="n">${i+1}</td>${sh.h.map((_,j)=>`<td><textarea rows="1" data-j="${j}">${String(r[j]??"").replace(/&/g,"&amp;").replace(/</g,"&lt;")}</textarea></td>`).join("")}<td class="x"><button class="del" title="刪除">×</button></td></tr>`).join("")}</table>`;
+    const tas=[...$("card").querySelectorAll("textarea")];
+    const colW=j=>sh.h.length>2&&j<sh.h.length?0:0;
+    tas.forEach(t=>{grow(t);t.oninput=()=>grow(t);
+      t.onchange=()=>{const i=+t.closest("tr").dataset.i,j=+t.dataset.j,old=sh.rows[i][j];const v=t.value.trim();if(v===old)return;sh.rows[i][j]=v;log(cur,"修改",`第${i+1}列「${sh.h[j]}」：${clip(old)} → ${clip(v)}`)}});
+    $("card").querySelectorAll(".del").forEach(b=>b.onclick=()=>{const i=+b.closest("tr").dataset.i;if(!confirm("刪除第"+(i+1)+"筆？"))return;const r=sh.rows.splice(i,1)[0];log(cur,"刪除",clip(r.join("｜"),70));render()});
+    $("add").onclick=()=>{sh.rows.unshift(sh.h.map(()=>""));log(cur,"新增","新增一筆空白資料");render();const f=$("card").querySelector("textarea");f&&f.focus()};
+    $("sort").onclick=()=>{sh.rows.sort((a,b)=>String(b[0]).localeCompare(String(a[0])));log(cur,"排序","依年度由新到舊");render();toast("已排序")};
+    const filt=()=>{const k=q.trim().toLowerCase();$("card").querySelectorAll("tr[data-i]").forEach(tr=>{tr.style.display=!k||sh.rows[+tr.dataset.i].join(" ").toLowerCase().includes(k)?"":"none"})};
+    $("q").oninput=e=>{q=e.target.value;filt()};filt();
+  }
+  $("exp").onclick=exportXlsx;$("imp").onclick=()=>$("file").click();
+  $("rst").onclick=()=>{if(confirm("將所有分頁還原成最初資料？目前的編輯會被覆蓋。")){S=JSON.parse(JSON.stringify(SEED));save();cur=Object.keys(S.sheets)[0];render();toast("已還原")}};
+}
+
+async function exportXlsx(){
+  try{
+    const wb=XLSX.utils.book_new();
+    for(const[k,v]of Object.entries(S.sheets)){
+      const ws=XLSX.utils.aoa_to_sheet([[`鄭琬融｜${k}`],v.h,...v.rows]);
+      ws["!merges"]=[{s:{r:0,c:0},e:{r:0,c:v.h.length-1}}];
+      ws["!cols"]=v.h.map((_,j)=>({wch:v.h.length===2?(j?90:20):26}));
+      XLSX.utils.book_append_sheet(wb,ws,k);
+    }
+    const lg=XLSX.utils.aoa_to_sheet([[`鄭琬融｜${LOG}`],["時間","分頁","動作","內容"],...S.log]);
+    lg["!cols"]=[{wch:18},{wch:14},{wch:8},{wch:80}];XLSX.utils.book_append_sheet(wb,lg,LOG);
+    const data=XLSX.write(wb,{bookType:"xlsx",type:"array"});
+    const d=await claude.use("downloads");
+    if(!d){toast("此環境無法下載檔案");return}
+    await d.save({filename:"鄭琬融_個人資料整理.xlsx",data});toast("已匯出");
+  }catch(e){if(e&&e.code==="declined")return;toast("匯出失敗："+(e.message||e))}
+}
+
+$("file").onchange=async e=>{
+  const f=e.target.files[0];e.target.value="";if(!f)return;
+  try{
+    const wb=XLSX.read(await f.arrayBuffer(),{type:"array"});let n=0;
+    for(const name of wb.SheetNames){
+      const rows=XLSX.utils.sheet_to_json(wb.Sheets[name],{header:1,raw:false,defval:""});
+      if(name===LOG){const i=rows.findIndex(r=>r[0]==="時間");if(i>=0){S.log=rows.slice(i+1).filter(r=>r.some(c=>c!=="")).map(r=>r.slice(0,4).map(String))}continue}
+      const sh=S.sheets[name];if(!sh)continue;
+      const hi=rows.findIndex(r=>String(r[0]).trim()===sh.h[0]);if(hi<0)continue;
+      const data=rows.slice(hi+1).filter(r=>r.some(c=>String(c).trim()!=="")).map(r=>sh.h.map((_,j)=>String(r[j]??"").trim()));
+      sh.rows=data;n++;log(name,"匯入",`由「${clip(f.name,30)}」匯入 ${data.length} 筆`);
+    }
+    save();render();toast(n?`已匯入 ${n} 個分頁`:"找不到可匯入的分頁（分頁名稱與欄位需與匯出檔一致）");
+  }catch(err){toast("匯入失敗："+err.message)}
+};
+render();
+</script></body></html>
